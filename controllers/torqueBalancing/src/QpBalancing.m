@@ -39,10 +39,10 @@ block.SetPreCompOutPortInfoToDynamic;
 
 % Definition of port sizes for QP 2 feet
 block.InputPort(1).Dimensions        = [ 1  2];   % LEFT_RIGHT_FOOT_IN_CONTACT
-block.InputPort(2).Dimensions        = [12 12];   % HessianMatrixQP2Feet               
-block.InputPort(3).Dimensions        = [ 1 12];   % gradientQP2Feet
-block.InputPort(4).Dimensions        = [38 12];   % ConstraintsMatrixQP2Feet 
-block.InputPort(5).Dimensions        = [ 1 38];   % bVectorConstraintsQp2Feet 
+block.InputPort(2).Dimensions        = [24 24];   % HessianMatrixQP2Feet               
+block.InputPort(3).Dimensions        = [ 1 24];   % gradientQP2Feet
+block.InputPort(4).Dimensions        = [76 24];   % ConstraintsMatrixQP2Feet 
+block.InputPort(5).Dimensions        = [ 1 76];   % bVectorConstraintsQp2Feet 
 block.InputPort(6).Dimensions        = 1 ;        % USE_QP_SOLVER
 % Definition of port sizes for QP 1 foot
 block.InputPort(7).Dimensions        = [ 6  6];   % HessianMatrixQP1Foot              
@@ -51,11 +51,11 @@ block.InputPort(9).Dimensions        = [19  6];   % ConstraintsMatrixQP1Foot
 block.InputPort(10).Dimensions       = [ 1 19];   % bVectorConstraintsQp1Foot
 
 % Override output port properties
-block.OutputPort(1).Dimensions       = 12;        % f0 Two Feet
+block.OutputPort(1).Dimensions       = 24;        % f0 Two Feet
 block.OutputPort(2).Dimensions       = 1;         % Exit flag QP 2 Feet
 
 % Override output port properties
-block.OutputPort(3).Dimensions       = 12;        % f0 One foot     
+block.OutputPort(3).Dimensions       = 24;        % f0 One foot     
 
 for i=1:block.NumInputPorts
     block.InputPort(i).DatatypeID  = -1;          % 'inherited', see http://www.mathworks.com/help/simulink/slref/simulink.blockdata.html#f29-108672
@@ -169,7 +169,7 @@ function Outputs(block)
     LEFT_RIGHT_FOOT_IN_CONTACT = block.InputPort(1).Data;
     exitFlagQP                 = 0;
     f0OneFoot                  = zeros(6,1);
-    f02Feet                    = zeros(6*2,1);
+    f02Feet                    = zeros(6*4,1);
     USE_QPO_SOLVER             = block.InputPort(6).Data;
 
     if sum(LEFT_RIGHT_FOOT_IN_CONTACT) > (2 - CONTACT_THRESHOLD)
@@ -210,7 +210,8 @@ function Outputs(block)
     block.OutputPort(2).Data = exitFlagQP;
     
     block.OutputPort(3).Data = [f0OneFoot*LEFT_RIGHT_FOOT_IN_CONTACT(1);
-                                f0OneFoot*LEFT_RIGHT_FOOT_IN_CONTACT(2)]*abs(LEFT_RIGHT_FOOT_IN_CONTACT(2)-LEFT_RIGHT_FOOT_IN_CONTACT(1));
+                                f0OneFoot*LEFT_RIGHT_FOOT_IN_CONTACT(2);
+                                zeros(12,1)]*abs(LEFT_RIGHT_FOOT_IN_CONTACT(2)-LEFT_RIGHT_FOOT_IN_CONTACT(1));
     
 %end Outputs
 

@@ -25,11 +25,7 @@ clear; clc;
 % and set the environmental variable YARP_ROBOT_NAME = icubGazeboSim.
 % To do this, you can uncomment the 
 
-% setenv('YARP_ROBOT_NAME','iCubGenova01');
-% setenv('YARP_ROBOT_NAME','iCubGenova02');
-% setenv('YARP_ROBOT_NAME','iCubDarmstadt01');
 setenv('YARP_ROBOT_NAME','icubGazeboSim');
-% setenv('YARP_ROBOT_NAME','iCubGenova05');
 
 % Simulation time in seconds
 CONFIG.SIMULATION_TIME     = inf;   
@@ -48,19 +44,12 @@ CONFIG.SIMULATION_TIME     = inf;
 %                found under the folder
 %
 %               robots/YARP_ROBOT_NAME/initRegGen.m
-%
-% 'CHAIR': the robot will stand up from a chair. The associated
-%          configuration parameters can be found under the folder
-%
-%          robots/YARP_ROBOT_NAME/initStateMachineChair.m
-%
+% 
 % 'WALKING': under development.
-%
-SM.SM_TYPE                 = 'CHAIR';
+SM.SM_TYPE                 = 'COORDINATOR';
 
 % CONFIG.SCOPES: if set to true, all visualizers for debugging are active
-CONFIG.SCOPES.ALL          = true;
-
+CONFIG.SCOPES.ALL          = false;
 % You can also activate only some specific debugging scopes
 CONFIG.SCOPES.BASE_EST_IMU = false;
 CONFIG.SCOPES.EXTWRENCHES  = false;
@@ -98,7 +87,7 @@ CONFIG.USE_IMU4EST_BASE    = false;
 CONFIG.YAW_IMU_FILTER      = true;
 CONFIG.PITCH_IMU_FILTER    = true;
 
-% CONFIG.CORRECT_NECK_IMU: when set equal to true, the kineamtics from the
+% CONFIG.CORRECT_NECK_IMU: when set euqal to true, the kineamtics from the
 % IMU and the contact foot is corrected by using the neck angles. If it set
 % equal to false, recall that the neck is assumed to be in (0,0,0)
 CONFIG.CORRECT_NECK_IMU    = true;
@@ -111,7 +100,6 @@ CONFIG.ONSOFTCARPET        = false;
 
 % CONFIG.USE_QP_SOLVER: if set to true, a QP solver is used to account for 
 % inequality constraints of contact wrenches
-CONFIG.USE_QP_SOLVER      = true; 
 
 PORTS.IMU       = '/icub/inertial';
 
@@ -121,6 +109,8 @@ PORTS.Q_DES     = ['/' WBT_modelName '/qDes:i'];
 
 PORTS.WBDT_LEFTLEG_EE  = '/wholeBodyDynamicsTree/left_leg/cartesianEndEffectorWrench:o';
 PORTS.WBDT_RIGHTLEG_EE = '/wholeBodyDynamicsTree/right_leg/cartesianEndEffectorWrench:o';
+
+CONFIG.USE_QP_SOLVER     = true; 
 
 CONFIG.Ts                = 0.01; %  Controller period [s]
 
@@ -137,35 +127,35 @@ run(robotSpecificReferences);
 SM.SM.MASK.COORDINATOR   = bin2dec('001');
 SM.SM.MASK.YOGA          = bin2dec('010');
 SM.SM.MASK.WALKING       = bin2dec('100');
-SM.SM.MASK.CHAIR         = bin2dec('110');
 
-SM.SM_TYPE_BIN   = SM.SM.MASK.COORDINATOR;
+
+SM.SM_TYPE_BIN = SM.SM.MASK.COORDINATOR;
 robotSpecificFSM = fullfile('app/robots',getenv('YARP_ROBOT_NAME'),'initStateMachine.m');
 run(robotSpecificFSM);
 
-%% iCub on a chair parameters
-icubChair         = 0;
-PORTS.WBDT_CHAIR  = '/chair/FT_sensor/analog:o/forceTorque';
-
-%% Define which simulation will be performed
 if strcmpi(SM.SM_TYPE, 'COORDINATOR')
-    SM.SM_TYPE_BIN   = SM.SM.MASK.COORDINATOR;
+    SM.SM_TYPE_BIN = SM.SM.MASK.COORDINATOR;
 elseif strcmpi(SM.SM_TYPE, 'YOGA')
-    SM.SM_TYPE_BIN   = SM.SM.MASK.YOGA;
+    SM.SM_TYPE_BIN = SM.SM.MASK.YOGA;
 elseif strcmpi(SM.SM_TYPE, 'WALKING')
-    SM.SM_TYPE_BIN   = SM.SM.MASK.WALKING;
-    robotSpecificFSM = fullfile('app/robots',getenv('YARP_ROBOT_NAME'),'initStateMachineWalking.m');
+    SM.SM_TYPE_BIN = SM.SM.MASK.WALKING;
+    robotSpecificFSM = fullfile('robots',getenv('YARP_ROBOT_NAME'),'initStateMachineWalking.m');
     run(robotSpecificFSM);
-elseif strcmpi(SM.SM_TYPE, 'CHAIR')
-    SM.SM_TYPE_BIN   = SM.SM.MASK.CHAIR;
-    robotSpecificFSM = fullfile('app/robots',getenv('YARP_ROBOT_NAME'),'initStateMachineChair.m');
-    run(robotSpecificFSM);
-    icubChair        = 1;
 end
 
-%% Contact constraints
-% feet
-[ConstraintsMatrix,bVectorConstraints]         = constraints(forceFrictionCoefficient,numberOfPoints,torsionalFrictionCoefficient,gain.footSize,fZmin);
-% legs
-[ConstraintsMatrixLegs,bVectorConstraintsLegs] = constraints(forceFrictionCoefficient,numberOfPoints,torsionalFrictionCoefficient,gain.legSize,fZmin);
+[ConstraintsMatrix,bVectorConstraints]= constraints(forceFrictionCoefficient,numberOfPoints,torsionalFrictionCoefficient,gain.footSize,fZmin);
+
+%% FRAMES AND PARAMETERS %%
+PORTS.WBDT_CHAIR  = '/chair/FT_sensor/analog:o/forceTorque';
+
+gazebo_R_base     = [-0.9992    0.0016   -0.0400;
+                     -0.0016   -1.0000   -0.0001;
+                     -0.0400         0    0.9992];
+             
+gazebo_pos_base   = [-0.07; -0.001; 0.4 ];
+
+gazebo_H_base     = [gazebo_R_base gazebo_pos_base; 0 0 0 1];
+gazebo_H_sensor   = [eye(3),[0;0;0.205]; 0 0 0 1];
+gazebo_H_Lcontact = [eye(3),[0; 0.083;0.2175];  0 0 0 1];
+gazebo_H_Rcontact = [eye(3),[0;-0.083;0.2175];  0 0 0 1];
 

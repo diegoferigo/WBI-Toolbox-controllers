@@ -1,10 +1,5 @@
 ROBOT_DOF = 23;
 
-WBT_wbiList = '(torso_pitch,torso_roll,torso_yaw,l_shoulder_pitch, l_shoulder_roll, l_shoulder_yaw, l_elbow, r_shoulder_pitch,r_shoulder_roll, r_shoulder_yaw, r_elbow, l_hip_pitch, l_hip_roll, l_hip_yaw, l_knee, l_ankle_pitch, l_ankle_roll, r_hip_pitch,r_hip_roll,r_hip_yaw,r_knee,r_ankle_pitch,r_ankle_roll)';
-
-gain.SmoothingTimeGainScheduling              = 2;  
-
-
 CONFIG.LEFT_RIGHT_FOOT_IN_CONTACT  = [1 1];
 
 CONFIG.SMOOTH_DES_COM      = 0;    % If equal to one, the desired streamed values 
@@ -12,12 +7,9 @@ CONFIG.SMOOTH_DES_COM      = 0;    % If equal to one, the desired streamed value
 CONFIG.SMOOTH_DES_Q        = 0;    % If equal to one, the desired streamed values 
                             % of the postural tasks are smoothed internally 
                             
-PORTS.WBDT_LEFTLEG_EE  = '/wholeBodyDynamics/left_leg/cartesianEndEffectorWrench:o';
-PORTS.WBDT_RIGHTLEG_EE = '/wholeBodyDynamics/right_leg/cartesianEndEffectorWrench:o';
-
 references.smoothingTimeMinJerkComDesQDes    = 3.0;
-
-sat.torque = 34;
+WBT_wbiList = '(torso_pitch,torso_roll,torso_yaw,l_shoulder_pitch, l_shoulder_roll, l_shoulder_yaw, l_elbow, r_shoulder_pitch,r_shoulder_roll, r_shoulder_yaw, r_elbow, l_hip_pitch, l_hip_roll, l_hip_yaw, l_knee, l_ankle_pitch, l_ankle_roll, r_hip_pitch,r_hip_roll,r_hip_yaw,r_knee,r_ankle_pitch,r_ankle_roll)';
+sat.torque  = 25;
 
 CONFIG.smoothingTimeTranDynamics    = 0.05;
 
@@ -124,11 +116,14 @@ torsionalFrictionCoefficient = 2/150;
 phys.footSize                = [ -0.065 0.13   ;    % xMin, xMax
                                  -0.045 0.05  ];   % yMin, yMax    
                       
-   gain.footSize  = [ -0.07  0.12   ;    % xMin, xMax
+   gain.footSize  = [ -0.07  0.12   ;   % xMin, xMax
                        -0.045 0.05 ];   % yMin, yMax   
 
-% gain.footSize                = [ -0.065 0.13   ;    % xMin, xMax
+% gain.footSize                = [ -0.065 0.13   ;  % xMin, xMax
 %                                  -0.04 0.04  ];   % yMin, yMax
+
+gain.legSize                   = [ -0.025  0.025 ;   % xMin, xMax
+                                   -0.005  0.005];   % yMin, yMax    
 fZmin                        = 10;
 
 %% The QP solver will search a solution fo that 
