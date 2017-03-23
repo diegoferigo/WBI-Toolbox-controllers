@@ -16,15 +16,15 @@ In order to run the simulation of iCub standing up from a chair, make sure you h
  
 ### Installation
 
-1) In the `WBIToolbox-controllers` repository, checkout the branch `icub_standUp_4Contacts`.
+1) In the `WBIToolbox-controllers` repository, checkout the branch `icub_standUp`.
 
 2) In your `.bashrc` file, add the following line:
     
-  `alias gazebo_chair="cd ~/YOUR/PATH/TO/icub_chair_world && gazebo -slibgazebo_yarp_clock.so`
+  `alias gazebo_standUp="cd ~/YOUR/PATH/TO/icub_standUp_world && gazebo -slibgazebo_yarp_clock.so`
  
    just to initialize the Gazebo world containing iCub on a chair. Instead of opening Gazebo as usual, on a terminal type:
 
-   `gazebo_chair`
+   `gazebo_standUp`
 
    and it will load the correct model.
 
@@ -33,6 +33,7 @@ In order to run the simulation of iCub standing up from a chair, make sure you h
 - To run iCub stand up demo, just use torqueBalancing controller as for other simulations. (for further details see [README](https://github.com/robotology-playground/WBI-Toolbox-controllers/blob/master/controllers/torqueBalancing/README.md)). 
   Do not open the yarpmotorgui: iCub is already in its home position!
 
-- In the [initialization file](https://github.com/robotology-playground/WBI-Toolbox-controllers/blob/icub_chair/controllers/torqueBalancing/initTorqueBalancing.m), there is now the new simulation option "CHAIR" as long as the old ones "YOGA" and "COORDINATOR".
+- In the [initialization file](https://github.com/robotology-playground/WBI-Toolbox-controllers/blob/icub_chair/controllers/torqueBalancing/initTorqueBalancing.m), there is now the new simulation option "STANDUP" as long as the old ones "YOGA" and "COORDINATOR".
 
-- All the demos "CHAIR", "YOGA" and "COORDINATOR" should be still available without conflicts (BUT with the right Gazebo environment for each demo). 
+- All the demos "STANDUP", "YOGA" and "COORDINATOR" should be still available without conflicts (BUT with the right Gazebo environment for each demo). 
+
