@@ -110,7 +110,6 @@ if (size(gain.impedances,2) ~= ROBOT_DOF)
 end
 
 %% constraints for QP for balancing on both feet - friction cone - z-moment - in terms of f (not f0!)
-
 % Friction cone parameters
 numberOfPoints               = 4; % The friction cone is approximated by using linear interpolation of the circle. 
                                   % So, numberOfPoints defines the number of points used to interpolate the circle in each cicle's quadrant 

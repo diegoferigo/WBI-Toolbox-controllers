@@ -15,14 +15,15 @@
 %  * Public License for more details
 %  */
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [tauModel,Sigma,NA,f_HDot, ...
+function [tauModel,Sigma,f_HDot,NA, ...
+          HessianMatrixQP2Feet,gradientQP2Feet,ConstraintsMatrixQP2Feet,bVectorConstraintsQp2Feet, ...
           HessianMatrixQP1Foot,gradientQP1Foot,ConstraintsMatrixQP1Foot,bVectorConstraintsQp1Foot,...
-          HessianMatrixQP2FeetAndLegs,gradientQP2FeetAndLegs,ConstraintsMatrixQP2FeetAndLegs,bVectorConstraintsQp2FeetAndLegs,...
-          errorCoM,qTilde,f]    =  ...
+          HessianMatrixQP2Feet2Legs,gradientQP2Feet2Legs,ConstraintsMatrixQP2Feet2Legs,bVectorConstraintsQp2Feet2Legs, ...          
+          errorCoM,qTilde,f]  =  ...
           balancingController(constraints,ROBOT_DOF_FOR_SIMULINK,ConstraintsMatrix,bVectorConstraints,ConstraintsMatrixLegs,bVectorConstraintsLegs,...
                               q, qDes, v, M, h, H, intHw, feetPose, legsPose, JFeet, JLegs, dJFeet, dJLegs, xcom, J_CoM, desired_x_dx_ddx_CoM,...
-                              gainsPCOM, gainsDCOM, impedances, intErrorCoM, ki_int_qtilde, reg, gain, legsInContact)
-    %BALANCING CONTROLLER
+                              gainsPCOM, gainsDCOM, impedances_old, intErrorCoM, ki_int_qtilde, reg, gain, legsInContact)                          
+    % BALANCING CONTROLLER
 
     %% DEFINITION OF CONTROL AND DYNAMIC VARIABLES
     % feet position and orientation
@@ -47,7 +48,7 @@ function [tauModel,Sigma,NA,f_HDot, ...
     
     % gains matrices
     gainsICOM       = zeros(3,1);
-    dampings        = gain.dampings;
+    dampings_old    = gain.dampings;
 
     ROBOT_DOF       = size(ROBOT_DOF_FOR_SIMULINK,1);
     gravAcc         = 9.81;
@@ -90,10 +91,10 @@ function [tauModel,Sigma,NA,f_HDot, ...
     Pl              = pos_leftFoot  - xcom; 
     
     % Application point of the contact force on the right leg w.r.t. CoM
-    PrLeg           = pos_rightLeg - xcom; 
+    PrLeg           = pos_rightLeg  - xcom; 
     
     % Application point of the contact force on the left leg w.r.t. CoM
-    PlLeg           = pos_leftLeg  - xcom; 
+    PlLeg           = pos_leftLeg   - xcom; 
 
     % The following variables serve for determining the rate-of-change of
     % the robot's momentum. In particular, when balancing on two feet, one has:
@@ -115,15 +116,16 @@ function [tauModel,Sigma,NA,f_HDot, ...
     AR_leg          = [ eye(3),    zeros(3);
                         Sf(PrLeg), eye(3) ];
 
-    A               = [AL, AR, AL_leg, AR_leg];         % dot(H) = mg + A*f
-    pinvA           = pinv(A, reg.pinvTol)*constraints(1)*constraints(2) ...
-                    + pinv(A, reg.pinvTol)*(1-constraints(1))*(1-constraints(2))*legsInContact; ...
-                    + [inv(AL);zeros(6);zeros(6);zeros(6)]*constraints(1)*(1-constraints(2)) ... 
-                    + [zeros(6);inv(AR);zeros(6);zeros(6)]*constraints(2)*(1-constraints(1)); 
+    A               = [AL, AR, AL_leg, AR_leg];                                                                                  % dot(H) = mg + A*f
+    pinvA           = pinv(A, reg.pinvTol)*constraints(1)*constraints(2)*legsInContact ...                                       % all points in contact
+                    + [pinv([AL,AR],reg.pinvTol);zeros(6);zeros(6)]*constraints(1)*constraints(2)*(1-legsInContact) ...          % only feet in contact
+                    + [inv(AL);zeros(6);zeros(6);zeros(6)]*constraints(1)*(1-constraints(2))*(1-legsInContact) ...               % left foot in contact
+                    + [zeros(6);inv(AR);zeros(6);zeros(6)]*constraints(2)*(1-constraints(1))*(1-legsInContact);                  % right foot in contact             
                 
     % Null space of the matrix A            
-    NA              = (eye(24,24)-pinvA*A)*constraints(1)*constraints(2) ...
-                    + (eye(24,24)-pinvA*A)*(1-constraints(1))*(1-constraints(2))*legsInContact;
+    NA              = (eye(24,24)-pinvA*A)*constraints(1)*constraints(2)*legsInContact +...
+                      [(eye(12,12)-pinv([AL,AR],reg.pinvTol)*([AL,AR])) zeros(12,12);...
+                        zeros(12,12)                                    zeros(12,12)]*constraints(1)*constraints(2)*(1-legsInContact);
 
     % Time varying contact jacobian
     JL              = JFeet(1:6,:);
@@ -132,10 +134,10 @@ function [tauModel,Sigma,NA,f_HDot, ...
     JL_leg          = JLegs(1:6,:);
     JR_leg          = JLegs(7:12,:);
     
-    Jc              = [ JL*constraints(1);      
-                        JR*constraints(2); 
-                        JL_leg*legsInContact;
-                        JR_leg*legsInContact];
+    Jc              = [JL*constraints(1);      
+                       JR*constraints(2); 
+                       JL_leg*legsInContact;
+                       JR_leg*legsInContact];
                   
     % Time varying dot(J)*nu
     dJLv            = dJFeet(1:6);
@@ -146,18 +148,18 @@ function [tauModel,Sigma,NA,f_HDot, ...
     
     JcDv            = [dJLv*constraints(1);      
                        dJRv*constraints(2);
-                       dJL_leg*constraints(1);      
-                       dJR_leg*constraints(2)];
+                       dJL_leg*legsInContact;      
+                       dJR_leg*legsInContact;];
 
     JcMinv          = Jc/M;
     JcMinvSt        = JcMinv*St;
     JcMinvJct       = JcMinv*transpose(Jc);
     JBar            = transpose(Jc(:,7:end)) -Mbj'/Mb*transpose(Jc(:,1:6)); % multiplier of f in tau0
 
-    PInv_JcMinvSt   = pinvDamped(JcMinvSt,reg.pinvDamp); 
+    Pinv_JcMinvSt   = pinvDamped(JcMinvSt,reg.pinvDamp); 
    
     % nullJcMinvSt  = null space of PInv_JcMinvSt
-    nullJcMinvSt    = eye(ROBOT_DOF) - PInv_JcMinvSt*JcMinvSt;
+    nullJcMinvSt    = eye(ROBOT_DOF) - Pinv_JcMinvSt*JcMinvSt;
 
     % Mbar is the mass matrix associated with the joint dynamics, i.e.
     Mbar            = Mj-Mbj'/Mb*Mbj;
@@ -165,8 +167,8 @@ function [tauModel,Sigma,NA,f_HDot, ...
     
     % Adaptation of control gains for back compatibility with older
     % versions of the controller
-    impedances      = diag(impedances)*pinv(NLMbar,reg.pinvTol) + reg.impedances*eye(ROBOT_DOF);
-    dampings        = diag(dampings)*pinv(NLMbar,reg.pinvTol)   + reg.dampings*eye(ROBOT_DOF); 
+    impedances      = diag(impedances_old)*pinv(NLMbar,reg.pinvTol) + reg.impedances*eye(ROBOT_DOF);
+    dampings        = diag(dampings_old)*pinv(NLMbar,reg.pinvTol)   + reg.dampings*eye(ROBOT_DOF); 
   
     %% QP PARAMETERS FOR TWO FEET STANDING
     % In the case the robot stands on two feet, the control objective is 
@@ -202,43 +204,52 @@ function [tauModel,Sigma,NA,f_HDot, ...
     % The same hold for the right foot
     constraintMatrixLeftFoot  = ConstraintsMatrix * blkdiag(w_R_l_sole',w_R_l_sole');
     constraintMatrixRightFoot = ConstraintsMatrix * blkdiag(w_R_r_sole',w_R_r_sole');
-    constraintMatrixLeftLeg   = ConstraintsMatrixLegs * blkdiag(w_R_l_leg',w_R_l_leg');
-    constraintMatrixRightLeg  = ConstraintsMatrixLegs * blkdiag(w_R_r_leg',w_R_r_leg');
     
-    ConstraintsMatrix2FeetAndLegs   = blkdiag(constraintMatrixLeftFoot,constraintMatrixRightFoot,constraintMatrixLeftLeg,constraintMatrixRightLeg);
-    bVectorConstraints2FeetAndLegs  = [bVectorConstraints;bVectorConstraints;bVectorConstraintsLegs;bVectorConstraintsLegs];
+    ConstraintsMatrix2Feet    = blkdiag(constraintMatrixLeftFoot,constraintMatrixRightFoot);
+    bVectorConstraints2Feet   = [bVectorConstraints;bVectorConstraints];
     
-    % vector constraints might not contain logical values (i.e., 0 or 1). 
-    toll = 0.1;
+    % Overwrite parameters for QP 2 Feet. Actually, this is only for a
+    % matter of matrix dimensions
+    JcMinv_2feet          = Jc(1:12,:)/M;
+    JcMinvSt_2feet        = JcMinv_2feet*St;
+    JcMinvJct_2feet       = JcMinv_2feet*transpose(Jc(1:12,:));
+    JBar_2feet            = transpose(Jc(1:12,7:end)) -Mbj'/Mb*transpose(Jc(1:12,1:6)); % multiplier of f in tau0
+    Pinv_JcMinvSt_2feet   = pinvDamped(JcMinvSt_2feet,reg.pinvDamp); 
+    JcDv_2feet            = JcDv(1:12);
+   
+    % nullJcMinvSt  = null space of PInv_JcMinvSt
+    nullJcMinvSt_2feet    = eye(ROBOT_DOF) - Pinv_JcMinvSt_2feet*JcMinvSt_2feet;
 
-    if constraints(1) < toll && constraints(2) < toll && legsInContact
-        ConstraintsMatrix2FeetAndLegs   = blkdiag(zeros(size(constraintMatrixLeftFoot)),zeros(size(constraintMatrixLeftFoot)),constraintMatrixLeftLeg,constraintMatrixRightLeg);
-        bVectorConstraints2FeetAndLegs  = [zeros(length(bVectorConstraints),1);zeros(length(bVectorConstraints),1);bVectorConstraintsLegs;bVectorConstraintsLegs];    
-    elseif legsInContact == 0 && constraints(1) > (1-toll) && constraints(2) > (1-toll)
-        ConstraintsMatrix2FeetAndLegs   = blkdiag(constraintMatrixLeftFoot,constraintMatrixRightFoot,zeros(size(constraintMatrixLeftLeg)),zeros(size(constraintMatrixLeftLeg)));
-        bVectorConstraints2FeetAndLegs  = [bVectorConstraints;bVectorConstraints;zeros(length(bVectorConstraintsLegs),1);zeros(length(bVectorConstraintsLegs),1)];
-    end
+    % Mbar is the mass matrix associated with the joint dynamics, i.e.
+    NLMbar_2feet          = nullJcMinvSt_2feet*Mbar;
+    
+    % Adaptation of control gains for back compatibility with older
+    % versions of the controller
+    impedances_2feet      = diag(impedances_old)*pinv(NLMbar_2feet,reg.pinvTol) + reg.impedances*eye(ROBOT_DOF);
+    dampings_2feet        = diag(dampings_old)*pinv(NLMbar_2feet,reg.pinvTol)   + reg.dampings*eye(ROBOT_DOF); 
     
     % Terms used in Eq. 0)
-    tauModel        = PInv_JcMinvSt*(JcMinv*h -JcDv) +nullJcMinvSt*(h(7:end) -Mbj'/Mb*h(1:6) ...
-                     -impedances*NLMbar*qTilde  -ki_int_qtilde -dampings*NLMbar*qD);
+    tauModel_2feet        = Pinv_JcMinvSt_2feet*(JcMinv_2feet*h -JcDv_2feet) +nullJcMinvSt_2feet*(h(7:end) -Mbj'/Mb*h(1:6) ...
+                           -impedances_2feet*NLMbar_2feet*qTilde -ki_int_qtilde -dampings_2feet*NLMbar_2feet*qD);
     
-    Sigma           = -(PInv_JcMinvSt*JcMinvJct +nullJcMinvSt*JBar);
+    Sigma_2feet           = -(Pinv_JcMinvSt_2feet*JcMinvJct_2feet +nullJcMinvSt_2feet*JBar_2feet);
     
     % Desired rate-of-change of the robot momentum
-    HDotDes         = [ m*xDDcomStar ;
-                       -gain.DAngularMomentum*H(4:end)-gain.PAngularMomentum*intHw];
+    HDotDes              = [ m*xDDcomStar ;
+                            -gain.DAngularMomentum*H(4:end)-gain.PAngularMomentum*intHw];
 
     % Contact wrenches realizing the desired rate-of-change of the robot
     % momentum HDotDes when standing on two feet. Note that f_HDot is
     % different from zero only when both foot are in contact, i.e. 
     % constraints(1) = constraints(2) = 1. This because when the robot
     % stands on one foot, the f_HDot is evaluated directly from the
-    % optimizer (see next section).
-    f_HDot          = pinvA*(HDotDes -gravityWrench)*constraints(1)*constraints(2) ...
-                    + pinvA*(HDotDes -gravityWrench)*(1-constraints(1))*(1-constraints(2))*legsInContact;
+    % optimizer (see next section). 
+    pinvA_2feet     = pinv([AL,AR],reg.pinvTol);
+         
+    f_HDot_2feet    = pinvA_2feet*(HDotDes -gravityWrench)*constraints(1)*constraints(2);
                 
-    SigmaNA         = Sigma*NA;
+    NA_2feet        = eye(12,12)-pinvA_2feet*([AL,AR]);
+    SigmaNA_2feet   = Sigma_2feet*NA_2feet;
    
     % The optimization problem 1) seeks for the redundancy of the external
     % wrench that minimize joint torques. Recall that the contact wrench can 
@@ -253,13 +264,13 @@ function [tauModel,Sigma,NA,f_HDot, ...
     % which in terms of f0 is:
     %
     % ConstraintsMatrix2Feet*NA*f0 < bVectorConstraints - ConstraintsMatrix2Feet*f_HDot
-    ConstraintsMatrixQP2FeetAndLegs  = ConstraintsMatrix2FeetAndLegs*NA;
-    bVectorConstraintsQp2FeetAndLegs = bVectorConstraints2FeetAndLegs-ConstraintsMatrix2FeetAndLegs*f_HDot;
+    ConstraintsMatrixQP2Feet  = ConstraintsMatrix2Feet*NA_2feet;
+    bVectorConstraintsQp2Feet = bVectorConstraints2Feet-ConstraintsMatrix2Feet*f_HDot_2feet;
     
     % Evaluation of Hessian matrix and gradient vector for solving the
     % optimization problem 1).
-    HessianMatrixQP2FeetAndLegs      = SigmaNA'*SigmaNA + eye(size(SigmaNA,2))*reg.HessianQP;
-    gradientQP2FeetAndLegs           = SigmaNA'*(tauModel + Sigma*f_HDot);
+    HessianMatrixQP2Feet      = SigmaNA_2feet'*SigmaNA_2feet + eye(size(SigmaNA_2feet,2))*reg.HessianQP;
+    gradientQP2Feet           = SigmaNA_2feet'*(tauModel_2feet + Sigma_2feet*f_HDot_2feet);
 
     %% QP PARAMETERS FOR ONE FOOT STANDING
     % In the case the robot stands on one foot, there is no redundancy of
@@ -281,12 +292,58 @@ function [tauModel,Sigma,NA,f_HDot, ...
     HessianMatrixQP1Foot      =  A1Foot'*A1Foot + eye(size(A1Foot,2))*reg.HessianQP;
     gradientQP1Foot           = -A1Foot'*(HDotDes - gravityWrench);
 
+    %% QP PARAMETERS FOR TWO FEET AND TWO LEGS BALANCING
+    constraintMatrixLeftLeg   = ConstraintsMatrixLegs * blkdiag(w_R_l_leg',w_R_l_leg');
+    constraintMatrixRightLeg  = ConstraintsMatrixLegs * blkdiag(w_R_r_leg',w_R_r_leg');
+   
+    ConstraintsMatrix2Feet2Legs    = blkdiag(constraintMatrixLeftFoot,constraintMatrixRightFoot,constraintMatrixLeftLeg,constraintMatrixRightLeg);
+    bVectorConstraints2Feet2Legs   = [bVectorConstraints;bVectorConstraints;bVectorConstraintsLegs;bVectorConstraintsLegs];
+    
+    % Terms used in Eq. 0)
+    tauModel        = Pinv_JcMinvSt*(JcMinv*h -JcDv) +nullJcMinvSt*(h(7:end) -Mbj'/Mb*h(1:6) ...
+                     -impedances*NLMbar*qTilde -ki_int_qtilde -dampings*NLMbar*qD);
+    
+    Sigma           = -(Pinv_JcMinvSt*JcMinvJct +nullJcMinvSt*JBar);
+
+    % Contact wrenches realizing the desired rate-of-change of the robot
+    % momentum HDotDes when standing on two feet. Note that f_HDot is
+    % different from zero only when both foot are in contact, i.e. 
+    % constraints(1) = constraints(2) = 1. This because when the robot
+    % stands on one foot, the f_HDot is evaluated directly from the
+    % optimizer (see next section). 
+         
+    f_HDot          = pinvA*(HDotDes -gravityWrench)*constraints(1)*constraints(2);
+
+    SigmaNA         = Sigma*NA;
+   
+    % The optimization problem 1) seeks for the redundancy of the external
+    % wrench that minimize joint torques. Recall that the contact wrench can 
+    % be written as:
+    %
+    % f = f_HDot + NA*f_0 
+    %
+    % Then, the constraints on the contact wrench is of the form
+    %
+    % ConstraintsMatrix2Feet*f < bVectorConstraints,
+    %
+    % which in terms of f0 is:
+    %
+    % ConstraintsMatrix2Feet*NA*f0 < bVectorConstraints - ConstraintsMatrix2Feet*f_HDot
+    ConstraintsMatrixQP2Feet2Legs  = ConstraintsMatrix2Feet2Legs*NA;
+    bVectorConstraintsQp2Feet2Legs = bVectorConstraints2Feet2Legs-ConstraintsMatrix2Feet2Legs*f_HDot;
+    
+    % Evaluation of Hessian matrix and gradient vector for solving the
+    % optimization problem 1).
+    HessianMatrixQP2Feet2Legs      = SigmaNA'*SigmaNA + eye(size(SigmaNA,2))*reg.HessianQP;
+    gradientQP2Feet2Legs           = SigmaNA'*(tauModel + Sigma*f_HDot);
+    
     %% DEBUG DIAGNOSTICS
     % Unconstrained solution for the problem 1)
-    %f0                        = -pinvDamped(SigmaNA,reg.pinvDamp*1e-5)*(tauModel + Sigma*f_HDot);
+    %f0                       = -pinvDamped(SigmaNA,reg.pinvDamp*1e-5)*(tauModel + Sigma*f_HDot);
     % Unconstrained contact wrenches
     f                         = zeros(24,1); %pinvA*(HDotDes - gravityWrench) + NA*f0*constraints(1)*constraints(2); 
     % Error on the center of mass
     errorCoM                  = xcom - desired_x_dx_ddx_CoM(:,1);
+    
 end
 

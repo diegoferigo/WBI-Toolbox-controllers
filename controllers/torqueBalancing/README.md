@@ -25,6 +25,7 @@ Users willing to use the module should follow this list.
 ## Module details
 ### Configuration file
 At start, the module calls the initialization file initTorqueBalancing.m. Once open, this file contains some configuration variables.
+
 #### General section
 - `robotName : port prefix of the robot to connect to, i.e. 'icubSim' for simulations, or 'icub' for experiments`
 - `localName`: module name. Ports will be opened with this name. Default to `matlabTorqueBalancing`

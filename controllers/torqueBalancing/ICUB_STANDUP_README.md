@@ -36,4 +36,3 @@ In order to run the simulation of iCub standing up from a chair, make sure you h
 - In the [initialization file](https://github.com/robotology-playground/WBI-Toolbox-controllers/blob/icub_chair/controllers/torqueBalancing/initTorqueBalancing.m), there is now the new simulation option "STANDUP" as long as the old ones "YOGA" and "COORDINATOR".
 
 - All the demos "STANDUP", "YOGA" and "COORDINATOR" should be still available without conflicts (BUT with the right Gazebo environment for each demo). 
-

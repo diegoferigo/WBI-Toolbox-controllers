@@ -15,10 +15,10 @@ if strcmpi(SM.SM_TYPE, 'YOGA')
     gain.footSize              = [ -0.07  0.12 ;    % xMin, xMax
                                    -0.045 0.05 ];   % yMin, yMax  
                    
-    forceFrictionCoefficient     = 1/3;  
+    forceFrictionCoefficient   = 1/3;  
     
     %Smoothing time for time varying impedances
-    gain.SmoothingTimeGainScheduling              = 2;  
+    gain.SmoothingTimeGainScheduling  = 2;  
 
     %Smoothing time for time-varying constraints
     CONFIG.smoothingTimeTranDynamics  = 0.02;
@@ -36,6 +36,7 @@ if strcmpi(SM.SM_TYPE, 'YOGA')
                         50    50  10  % state == 11  PREPARING FOR SWITCHING 
                         50    50  10  % state == 12  LOOKING FOR CONTACT
                         50    50  10];% state == 13  TRANSITION TO INITIAL POSITION
+                    
     gain.PCOM  =  gain.PCOM;
     gain.ICOM  = gain.PCOM*0;
     gain.DCOM  = 2*sqrt(gain.PCOM)/20;
@@ -116,7 +117,7 @@ sm.jointsSmoothingTimes          = [1;   %% state ==  1  TWO FEET BALANCING
                                     2;   %% state == 11  PREPARING FOR SWITCHING
                                     5;   %% state == 12  LOOKING FOR CONTACT 
                                          %%
-                                    10];  %% state == 13  TRANSITION INIT POSITION
+                                    10]; %% state == 13  TRANSITION INIT POSITION
 
 sm.com.states      = [0.0,  0.01,0.0;   %% state ==  1  TWO FEET BALANCING NOT USED
                       0.0,  0.00,0.0;   %% state ==  2  COM TRANSITION TO LEFT FOOT: THIS REFERENCE IS USED AS A DELTA W.R.T. THE POSITION OF THE LEFT FOOT

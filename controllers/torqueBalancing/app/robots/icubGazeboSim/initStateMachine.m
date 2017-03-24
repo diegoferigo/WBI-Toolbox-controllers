@@ -18,7 +18,7 @@ if strcmpi(SM.SM_TYPE, 'YOGA')
     forceFrictionCoefficient     = 1/3;  
     
     %Smoothing time for time varying impedances
-    gain.SmoothingTimeGainScheduling              = 2;  
+    gain.SmoothingTimeGainScheduling  = 2;  
 
     %Smoothing time for time-varying constraints
     CONFIG.smoothingTimeTranDynamics  = 0.02;
@@ -36,6 +36,7 @@ if strcmpi(SM.SM_TYPE, 'YOGA')
                         10    50  10  % state == 11  PREPARING FOR SWITCHING 
                         10    50  10  % state == 12  LOOKING FOR CONTACT
                         10    50  10];% state == 13  TRANSITION TO INITIAL POSITION
+                    
     gain.PCOM  =  gain.PCOM;
     gain.ICOM  = gain.PCOM*0;
     gain.DCOM  = 2*sqrt(gain.PCOM);

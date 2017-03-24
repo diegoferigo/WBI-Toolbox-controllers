@@ -1,6 +1,6 @@
 function [w_H_b, CoMDes,qDes,constraints,impedances,kpCom,kdCom,currentState,jointsSmoothingTime] = ...
-    stateMachine(CoM_0, q0, l_sole_CoM,r_sole_CoM,qj, t, ...
-                  wrench_rightFoot,wrench_leftFoot,l_sole_H_b, r_sole_H_b, sm,gain)
+         stateMachine(CoM_0, q0, l_sole_CoM,r_sole_CoM,qj, t, ...
+                      wrench_rightFoot,wrench_leftFoot,l_sole_H_b, r_sole_H_b, sm,gain)
     %#codegen
     persistent state;
     persistent tSwitch;
@@ -89,7 +89,6 @@ function [w_H_b, CoMDes,qDes,constraints,impedances,kpCom,kdCom,currentState,joi
     if state == 4 
         w_H_b       =  w_H_fixedLink * l_sole_H_b;
 
-
         % Set the center of mass projection onto the x-y plane to be
         % coincident to the origin of the left foot (l_sole) plus a
         % configurable delta
@@ -167,11 +166,9 @@ function [w_H_b, CoMDes,qDes,constraints,impedances,kpCom,kdCom,currentState,joi
     %% TRANSITION TO INITIAL POSITION
     if state == 7 
         w_H_b       =  w_H_fixedLink * l_sole_H_b;
-        
-        
+                
         CoMDes      = CoM_0 + sm.com.states(state,:)';         
-
-        
+   
         constraints = [1; 1]; %right foot is no longer a constraints
         impedances  = gain.impedances(state,:);
         kpCom       = gain.PCOM(state,:);   
@@ -192,7 +189,6 @@ function [w_H_b, CoMDes,qDes,constraints,impedances,kpCom,kdCom,currentState,joi
     if state == 8 
         constraints = [1; 1]; %right foot is no longer a constraints
         w_H_b       =  w_H_fixedLink*r_sole_H_b;
-
 
         % Set the center of mass projection onto the x-y plane to be
         % coincident to the origin of the left foot (l_sole) plus a
@@ -317,11 +313,8 @@ function [w_H_b, CoMDes,qDes,constraints,impedances,kpCom,kdCom,currentState,joi
     end 
     
     %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
     currentState        = state;
     jointsSmoothingTime = sm.jointsSmoothingTimes(state);
-    
-    
     
     
    

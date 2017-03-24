@@ -1,4 +1,4 @@
-CONFIG.DEMO_MOVEMENTS      = false; % Either true or false 
+CONFIG.DEMO_MOVEMENTS                  = false; % Either true or false 
 
 
 references.com.points                  = 0;

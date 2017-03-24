@@ -1,7 +1,6 @@
 function [CoMDes,qDes,constraints, currentState,impedances,w_H_b] = ...
-    stateMachineWalking(connection,CoM_0, q0, w_CoM, CoMIn, qIn, constraintsIn, wrench_rightFoot,wrench_leftFoot,l_sole_H_b, r_sole_H_b, sm,gain)
-    %#codegen
-        
+          stateMachineWalking(connection,CoM_0, q0, w_CoM, CoMIn, qIn, constraintsIn, wrench_rightFoot,wrench_leftFoot,l_sole_H_b, r_sole_H_b, sm,gain)
+    %#codegen    
     persistent state;
     persistent fixedLink;
     persistent w_H_fixedLink;
@@ -10,12 +9,11 @@ function [CoMDes,qDes,constraints, currentState,impedances,w_H_b] = ...
         state         = sm.stateAt0;
         fixedLink     = 1;
         w_H_fixedLink = eye(4);
-    end
-    
+    end   
     
 %     w_H_fixedLink  = eye(4);
 %     
-%     fixedLink   =  1; % 1 = left, 2 = right
+%     fixedLink      =  1; % 1 = left, 2 = right
     
     CoMDes      = CoM_0;
     constraints = [1; 1];
@@ -37,18 +35,18 @@ function [CoMDes,qDes,constraints, currentState,impedances,w_H_b] = ...
     
     if state == 1
         %waiting for com reference
-            CoMDes      = CoM_0;
+        CoMDes      = CoM_0;
 
         if norm(CoM_0 - CoMIn) > eps && connection
             state = 2;
         end
+        
     elseif state == 2
         
-        CoMDes = CoMIn;
-        qDes   = qIn;
-        impedances  = gain.impedances(state,:);
-           
-        CoMError  = CoMDes - w_CoM;
+        CoMDes     = CoMIn;
+        qDes       = qIn;
+        impedances = gain.impedances(state,:);   
+        CoMError   = CoMDes - w_CoM;
         
         if ~any(constraintsIn - [1; 0]) ...
                 && norm(CoMError(2)) < sm.com.threshold
@@ -61,10 +59,8 @@ function [CoMDes,qDes,constraints, currentState,impedances,w_H_b] = ...
                 && norm(CoMError(2)) < sm.com.threshold
             constraints = [0; 1]; %left foot is no longer a constraints
             state = 4;
-            
             fixedLink = 2;
-            w_H_fixedLink = w_H_b / r_sole_H_b;
-           
+            w_H_fixedLink = w_H_b / r_sole_H_b;           
         end
             
     elseif state == 3
