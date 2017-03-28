@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.3150"
+    ComputedModelVersion    "1.3152"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -51,11 +51,11 @@ Model {
 	$ObjectID		5
 	$ClassName		"Simulink.EditorInfo"
 	IsActive		[1]
-	ViewObjType		"SimulinkSubsys"
-	LoadSaveID		"2087"
+	ViewObjType		"SimulinkTopLevel"
+	LoadSaveID		"0"
 	Extents			[1821.0, 911.0]
-	ZoomFactor		[0.67584663407738976]
-	Offset			[-1158.8553837841605, 2115.03052670106]
+	ZoomFactor		[0.87339268051434227]
+	Offset			[-147.48640996602489, 113.97055492638731]
       }
     }
   }
@@ -65,9 +65,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "gnava"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Mar 24 14:09:04 2017"
-  RTWModifiedTimeStamp	  412265343
-  ModelVersionFormat	  "1.%<AutoIncrement:3150>"
+  LastModifiedDate	  "Tue Mar 28 15:50:50 2017"
+  RTWModifiedTimeStamp	  412617049
+  ModelVersionFormat	  "1.%<AutoIncrement:3152>"
   ConfigurationManager	  "none"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
@@ -1064,7 +1064,7 @@ Model {
     ShowPageBoundaries	    off
     ZoomFactor		    "87"
     ReportName		    "simulink-default.rpt"
-    SIDHighWatermark	    "4820"
+    SIDHighWatermark	    "4828"
     Block {
       BlockType		      SubSystem
       Name		      "DesValues"
@@ -13486,12 +13486,12 @@ Model {
 		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
 		TiledPageScale		1
 		ShowPageBoundaries	off
-		ZoomFactor		"349"
+		ZoomFactor		"205"
 		Block {
 		  BlockType		  Inport
 		  Name			  "wL_WBDT"
 		  SID			  "4164"
-		  Position		  [175, 262, 220, 278]
+		  Position		  [55, 182, 100, 198]
 		  ZOrder		  648
 		  IconDisplay		  "Port number"
 		  Port {
@@ -13506,7 +13506,7 @@ Model {
 		  BlockType		  Inport
 		  Name			  "wR_WBDT"
 		  SID			  "4165"
-		  Position		  [175, 382, 220, 398]
+		  Position		  [55, 382, 100, 398]
 		  ZOrder		  682
 		  Port			  "2"
 		  IconDisplay		  "Port number"
@@ -13521,7 +13521,7 @@ Model {
 		  BlockType		  Inport
 		  Name			  "state"
 		  SID			  "4811"
-		  Position		  [175, 322, 220, 338]
+		  Position		  [55, 272, 100, 288]
 		  ZOrder		  702
 		  Port			  "3"
 		  IconDisplay		  "Port number"
@@ -13531,7 +13531,7 @@ Model {
 		  Name			  "Enable"
 		  SID			  "4166"
 		  Ports			  []
-		  Position		  [347, 235, 367, 255]
+		  Position		  [67, 480, 87, 500]
 		  ZOrder		  649
 		}
 		Block {
@@ -13539,7 +13539,7 @@ Model {
 		  Name			  "MATLAB Function"
 		  SID			  "4812"
 		  Ports			  [1, 2]
-		  Position		  [295, 298, 425, 362]
+		  Position		  [275, 225, 415, 260]
 		  ZOrder		  701
 		  ErrorFcn		  "Stateflow.Translate.translate"
 		  PermitHierarchicalResolution "ParametersOnly"
@@ -13684,13 +13684,65 @@ Model {
 		  }
 		}
 		Block {
+		  BlockType		  Selector
+		  Name			  "Selector"
+		  SID			  "4823"
+		  Ports			  [1, 1]
+		  Position		  [350, 461, 385, 489]
+		  ZOrder		  705
+		  InputPortWidth	  "6"
+		  IndexOptions		  "Index vector (dialog)"
+		  Indices		  "[3]"
+		  OutputSizes		  "1"
+		}
+		Block {
+		  BlockType		  Selector
+		  Name			  "Selector1"
+		  SID			  "4824"
+		  Ports			  [1, 1]
+		  Position		  [350, 506, 385, 534]
+		  ZOrder		  706
+		  InputPortWidth	  "6"
+		  IndexOptions		  "Index vector (dialog)"
+		  Indices		  "[3]"
+		  OutputSizes		  "1"
+		}
+		Block {
+		  BlockType		  Sum
+		  Name			  "Sum"
+		  SID			  "4825"
+		  Ports			  [2, 1]
+		  Position		  [410, 495, 430, 515]
+		  ZOrder		  707
+		  ShowName		  off
+		  IconShape		  "round"
+		  Inputs		  "+|+"
+		  InputSameDT		  off
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Sum
+		  Name			  "Sum1"
+		  SID			  "4827"
+		  Ports			  [2, 1]
+		  Position		  [575, 525, 595, 545]
+		  ZOrder		  709
+		  ShowName		  off
+		  IconShape		  "round"
+		  Inputs		  "++|"
+		  InputSameDT		  off
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
 		  BlockType		  Scope
 		  Name			  "left foot ext wrench"
 		  SID			  "4172"
-		  Ports			  [2]
-		  Position		  [600, 248, 680, 337]
+		  Ports			  [3]
+		  Position		  [635, 167, 725, 303]
 		  ZOrder		  680
-		  NumInputPorts		  "2"
+		  NumInputPorts		  "3"
 		  Open			  off
 		  TimeRange		  auto
 		  TickLabels		  OneTimeTick
@@ -13699,8 +13751,8 @@ Model {
 		  MaxDataPoints		  5000
 		  SaveToWorkspace	  off
 		  SaveName		  ScopeData1
-		  YMin			  -53.64631~30.00000
-		  YMax			  255.35653~50.00000
+		  YMin			  51.27439~-17.5~70.00000
+		  YMax			  139.86571~157.5~90.00000
 		  SampleInput		  off
 		  SampleTime		  -1
 		  ZoomMode		  on
@@ -13711,6 +13763,7 @@ Model {
 		    ListType		    AxesTitles
 		    axes1		    "%<SignalLabel>"
 		    axes2		    "%<SignalLabel>"
+		    axes3		    "%<SignalLabel>"
 		  }
 		  List {
 		    ListType		    ScopeGraphics
@@ -13722,16 +13775,58 @@ Model {
 		    LineWidths		    "[0.5 0.5 0.5 0.5 0.5 0.5]"
 		    MarkerStyles	    "none|none|none|none|none|none"
 		  }
-		  Location		  [76 136 1004 1079]
+		  Location		  [66 78 1921 1079]
 		}
 		Block {
 		  BlockType		  Scope
 		  Name			  "right foot ext wrench"
-		  SID			  "4173"
-		  Ports			  [2]
-		  Position		  [600, 368, 680, 452]
-		  ZOrder		  678
-		  NumInputPorts		  "2"
+		  SID			  "4828"
+		  Ports			  [3]
+		  Position		  [635, 322, 725, 458]
+		  ZOrder		  710
+		  NumInputPorts		  "3"
+		  Open			  off
+		  TimeRange		  auto
+		  TickLabels		  OneTimeTick
+		  ShowLegends		  off
+		  LimitDataPoints	  off
+		  MaxDataPoints		  5000
+		  SaveToWorkspace	  off
+		  SaveName		  ScopeData1
+		  YMin			  -10~-5~-5
+		  YMax			  10~5~5
+		  SampleInput		  off
+		  SampleTime		  -1
+		  ZoomMode		  on
+		  Grid			  on
+		  DataFormat		  StructureWithTime
+		  Decimation		  1
+		  List {
+		    ListType		    AxesTitles
+		    axes1		    "%<SignalLabel>"
+		    axes2		    "%<SignalLabel>"
+		    axes3		    "%<SignalLabel>"
+		  }
+		  List {
+		    ListType		    ScopeGraphics
+		    FigureColor		    "[0.156862745098039 0.156862745098039 0.156862745098039]"
+		    AxesColor		    "[0 0 0]"
+		    AxesTickColor	    "[0.686274509803922 0.686274509803922 0.686274509803922]"
+		    LineColors		    "[1 1 0;1 0 1;0 1 1;1 0 0;0 1 0;0 0 1]"
+		    LineStyles		    "-|-|-|-|-|-"
+		    LineWidths		    "[0.5 0.5 0.5 0.5 0.5 0.5]"
+		    MarkerStyles	    "none|none|none|none|none|none"
+		  }
+		  Location		  [680 330 1240 750]
+		}
+		Block {
+		  BlockType		  Scope
+		  Name			  "sum ext wrench"
+		  SID			  "4826"
+		  Ports			  [3]
+		  Position		  [645, 488, 710, 582]
+		  ZOrder		  708
+		  NumInputPorts		  "3"
 		  Open			  off
 		  TimeRange		  42.68
 		  TickLabels		  OneTimeTick
@@ -13739,9 +13834,9 @@ Model {
 		  LimitDataPoints	  off
 		  MaxDataPoints		  5000
 		  SaveToWorkspace	  off
-		  SaveName		  ScopeData2
-		  YMin			  119.63403~30.00000
-		  YMax			  183.40786~50.00000
+		  SaveName		  ScopeData1
+		  YMin			  38.70818~-17.5~70.00000
+		  YMax			  103.09316~157.5~90.00000
 		  SampleInput		  off
 		  SampleTime		  -1
 		  ZoomMode		  on
@@ -13752,6 +13847,7 @@ Model {
 		    ListType		    AxesTitles
 		    axes1		    "%<SignalLabel>"
 		    axes2		    "%<SignalLabel>"
+		    axes3		    "%<SignalLabel>"
 		  }
 		  List {
 		    ListType		    ScopeGraphics
@@ -13763,7 +13859,7 @@ Model {
 		    LineWidths		    "[0.5 0.5 0.5 0.5 0.5 0.5]"
 		    MarkerStyles	    "none|none|none|none|none|none"
 		  }
-		  Location		  [993 106 1921 1079]
+		  Location		  [66 78 1921 1079]
 		}
 		Line {
 		  Name			  "wR_WBDT"
@@ -13771,8 +13867,18 @@ Model {
 		  Labels		  [0, 0]
 		  SrcBlock		  "wR_WBDT"
 		  SrcPort		  1
-		  DstBlock		  "right foot ext wrench"
-		  DstPort		  1
+		  Points		  [65, 0]
+		  Branch {
+		    ZOrder		    91
+		    Points		    [0, 130]
+		    DstBlock		    "Selector1"
+		    DstPort		    1
+		  }
+		  Branch {
+		    ZOrder		    87
+		    DstBlock		    "right foot ext wrench"
+		    DstPort		    2
+		  }
 		}
 		Line {
 		  Name			  "wL_WBDT"
@@ -13780,15 +13886,50 @@ Model {
 		  Labels		  [0, 0]
 		  SrcBlock		  "wL_WBDT"
 		  SrcPort		  1
-		  DstBlock		  "left foot ext wrench"
-		  DstPort		  1
+		  Points		  [87, 0]
+		  Branch {
+		    ZOrder		    84
+		    DstBlock		    "left foot ext wrench"
+		    DstPort		    1
+		  }
+		  Branch {
+		    ZOrder		    82
+		    Points		    [0, 285]
+		    DstBlock		    "Selector"
+		    DstPort		    1
+		  }
 		}
 		Line {
 		  ZOrder		  23
 		  SrcBlock		  "state"
 		  SrcPort		  1
-		  DstBlock		  "MATLAB Function"
-		  DstPort		  1
+		  Points		  [109, 0]
+		  Branch {
+		    ZOrder		    94
+		    Points		    [0, 155]
+		    Branch {
+		    ZOrder		    95
+		    Points		    [0, 130]
+		    DstBlock		    "sum ext wrench"
+		    DstPort		    3
+		    }
+		    Branch {
+		    ZOrder		    89
+		    DstBlock		    "right foot ext wrench"
+		    DstPort		    3
+		    }
+		  }
+		  Branch {
+		    ZOrder		    68
+		    DstBlock		    "left foot ext wrench"
+		    DstPort		    3
+		  }
+		  Branch {
+		    ZOrder		    67
+		    Points		    [0, -35]
+		    DstBlock		    "MATLAB Function"
+		    DstPort		    1
+		  }
 		}
 		Line {
 		  Name			  "thresholdContactLeft"
@@ -13796,8 +13937,17 @@ Model {
 		  Labels		  [0, 0]
 		  SrcBlock		  "MATLAB Function"
 		  SrcPort		  1
-		  DstBlock		  "left foot ext wrench"
-		  DstPort		  2
+		  Points		  [165, 0]
+		  Branch {
+		    ZOrder		    98
+		    DstBlock		    "left foot ext wrench"
+		    DstPort		    2
+		  }
+		  Branch {
+		    ZOrder		    83
+		    DstBlock		    "Sum1"
+		    DstPort		    1
+		  }
 		}
 		Line {
 		  Name			  "thresholdContactRight"
@@ -13805,8 +13955,47 @@ Model {
 		  Labels		  [0, 0]
 		  SrcBlock		  "MATLAB Function"
 		  SrcPort		  2
-		  Points		  [128, 0; 0, 85]
-		  DstBlock		  "right foot ext wrench"
+		  Points		  [100, 0; 0, 95]
+		  Branch {
+		    ZOrder		    92
+		    DstBlock		    "right foot ext wrench"
+		    DstPort		    1
+		  }
+		  Branch {
+		    ZOrder		    90
+		    Points		    [0, 190]
+		    DstBlock		    "Sum1"
+		    DstPort		    2
+		  }
+		}
+		Line {
+		  ZOrder		  40
+		  SrcBlock		  "Selector"
+		  SrcPort		  1
+		  Points		  [30, 0]
+		  DstBlock		  "Sum"
+		  DstPort		  1
+		}
+		Line {
+		  ZOrder		  41
+		  SrcBlock		  "Selector1"
+		  SrcPort		  1
+		  Points		  [30, 0]
+		  DstBlock		  "Sum"
+		  DstPort		  2
+		}
+		Line {
+		  ZOrder		  42
+		  SrcBlock		  "Sum"
+		  SrcPort		  1
+		  DstBlock		  "sum ext wrench"
+		  DstPort		  1
+		}
+		Line {
+		  ZOrder		  50
+		  SrcBlock		  "Sum1"
+		  SrcPort		  1
+		  DstBlock		  "sum ext wrench"
 		  DstPort		  2
 		}
 	      }
@@ -21902,7 +22091,6 @@ Model {
 	      ZOrder		      38
 	      SrcBlock		      "w_H_root_link1"
 	      SrcPort		      1
-	      Points		      [0, 0]
 	      DstBlock		      "stateMachineFCN"
 	      DstPort		      4
 	    }
@@ -27580,8 +27768,8 @@ Model {
 	  MaxDataPoints		  5000
 	  SaveToWorkspace	  on
 	  SaveName		  comData
-	  YMin			  -0.1711~-0.1711~-0.000000000000000008~0.9
-	  YMax			  0.06106~0.06106~0.000000000000000005~1.1
+	  YMin			  -0.09027~-0.12139~-0.03886~0.625
+	  YMax			  0.23646~0.20261~0.08833~4.375
 	  SampleInput		  off
 	  SampleTime		  -1
 	  ZoomMode		  on
@@ -28887,8 +29075,8 @@ Model {
 	  MaxDataPoints		  5000
 	  SaveToWorkspace	  on
 	  SaveName		  tauDesiredData
-	  YMin			  -11.78546~-11.78546~-11.78546~-11.78546~-11.78546~-11.78546
-	  YMax			  8.52242~8.52242~8.52242~8.52242~8.52242~8.52242
+	  YMin			  -21.86616~-4.50299~-4.38083~-11.13847~-11.21619~0.9
+	  YMax			  2.45853~1.66849~1.67396~7.79194~7.35181~1.1
 	  SampleInput		  off
 	  SampleTime		  -1
 	  ZoomMode		  on
@@ -28914,7 +29102,7 @@ Model {
 	    LineWidths		    "[0.5 0.5 0.5 0.5 0.5 0.5]"
 	    MarkerStyles	    "none|none|none|none|none|none"
 	  }
-	  Location		  [1 95 1281 795]
+	  Location		  [76 159 1346 829]
 	}
 	Block {
 	  BlockType		  Scope
