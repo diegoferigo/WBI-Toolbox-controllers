@@ -1,5 +1,4 @@
-function [w_H_root,wImu_R_link] = fromBaseToWorldWithImu(imu_H_link,imu_H_link_0,link_H_root,inertial_0,inertial,neck,CONFIG)
-%#codegen
+function [w_H_root,wImu_R_link] = fromBaseToWorldWithImuSeesaw(imu_H_link,imu_H_link_0,link_H_root,inertial_0,inertial,neck,CONFIG)
 
 % Converting the inertial values from grad into rad
 inertial        = (inertial   * pi)/180;
@@ -16,10 +15,10 @@ imu_R_link_0    = imu_H_link_0(1:3,1:3);
 wImu_R_link     = wImu_R_imu*imu_R_link;
 wImu_R_link_0   = wImu_R_imu_0*imu_R_link_0;
 
-rollPitchYaw_link_0 = rollPitchYawFromRotation(wImu_R_link_0);
-rollPitchYaw_link   = rollPitchYawFromRotation(wImu_R_link);
+%rollPitchYaw_link_0 = rollPitchYawFromRotation(wImu_R_link_0);
+rollPitchYaw_link    = rollPitchYawFromRotation(wImu_R_link);
 
-rollPitchYawFiltered_link        = rollPitchYaw_link;
+rollPitchYawFiltered_link = rollPitchYaw_link;
 
 if CONFIG.YAW_IMU_FILTER
     rollPitchYawFiltered_link(3) = 0;
@@ -41,5 +40,8 @@ wImu_H_root         = wImu_H_link*link_H_root;
 %correcting neck movements
 wImu_H_wImuAssumingNeckToZero = correctIMU(neck);
 wImu_H_root                   = wImu_H_wImuAssumingNeckToZero * wImu_H_root;
-
 w_H_root                      = wImu_H_link_0\wImu_H_root; % link_0_H_root
+
+w_H_link = w_H_root/link_H_root;
+
+end

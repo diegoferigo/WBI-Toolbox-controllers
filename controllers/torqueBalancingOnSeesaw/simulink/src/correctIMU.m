@@ -1,6 +1,6 @@
 function [ imu_H_imuAssumingNeckToZero ] = correctIMU( neckJoints )
-%correctIMU Correct the IMU transform computed assuming the neck joint
-%equal to 0, return the imu_H_imuAssumingNeckToZero transform . 
+% correctIMU Correct the IMU transform computed assuming the neck joint
+% equal to 0, return the imu_H_imuAssumingNeckToZero transform . 
 % neckJoints is the vector of joints ( neck_pitch , neck_roll,
 % neck_radians) (0,1,2) of head part, expressed in radians (while
 % on the port they are published in degree)

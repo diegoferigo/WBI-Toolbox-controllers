@@ -36,8 +36,8 @@ block.SetPreCompOutPortInfoToDynamic;
 % %4 % [x0;lb;ub]                  
 
 % Definition of port sizes for QP 2 feet
-block.InputPort(1).Dimensions        =  23;       % tauModel               
-block.InputPort(2).Dimensions        =  23;       % Sigmaf_HDot
+block.InputPort(1).Dimensions        = 23;        % tauModel               
+block.InputPort(2).Dimensions        = 23;        % Sigmaf_HDot
 block.InputPort(3).Dimensions        = [23 12];   % SigmaNa 
 block.InputPort(4).Dimensions        = [12 12];   % HessianMatrixQP2Feet               
 block.InputPort(5).Dimensions        = [ 1 12];   % gradientQP2Feet
