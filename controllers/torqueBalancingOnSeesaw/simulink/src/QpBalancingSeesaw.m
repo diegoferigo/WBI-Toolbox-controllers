@@ -89,7 +89,7 @@ block.SimStateCompliance = 'DefaultSimState';
 %% provided for each function for more information.
 %% -----------------------------------------------------------------
 
-% block.RegBlockMethod('PostPropagationSetup',    @DoPostPropSetup);
+% block.RegBlockMethod('PostPropagationSetup', @DoPostPropSetup);
 % block.RegBlockMethod('InitializeConditions', @InitializeConditions);
 % block.RegBlockMethod('Start', @Start);
 block.RegBlockMethod('SetInputPortSamplingMode',@SetInputPortSamplingMode);
@@ -125,7 +125,6 @@ function SetInputPortSamplingMode(block, idx, fd)
 %%   C-MEX counterpart: mdlInitializeConditions
 %%
 % function InitializeConditions(block)
-
 
 % end InitializeConditions
 

@@ -3,7 +3,7 @@ function w_R_seesaw = seesawRotationInWorldframe(imu_H_lSole,imu_H_lSole_0,imuRo
 % Transformation between the world and l_sole at time 0
 w_H_lSole_0 = CONFIG.w_H_lSole_0;
 
-% Transformation between world and imu at time 0
+% Transformation between world and robot imu at time 0
 w_H_imu_0   = w_H_lSole_0/imu_H_lSole_0;
 w_R_imu_0   = w_H_imu_0(1:3,1:3);
 
