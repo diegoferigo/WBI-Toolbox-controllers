@@ -26,10 +26,11 @@ seesaw.h         = 0.1;
 seesaw.rho       = 0.362;
 
 % Distance beteewn the center of rotation and the center of mass
-seesaw.delta     = seesaw.rho - seesaw.h + 0.002;
+seesaw.top       = 0.002; % seesaw.delta - (seesaw.rho - seesaw.h) ;
+seesaw.delta     = seesaw.rho - seesaw.h + seesaw.top;
 seesaw.inertia   = diag([7.6698599e-02, 3.7876787e-02, 1.0893139e-01]);
 seesaw.mass      = 4.2;
-seesaw.top       = 0.002; % seesaw.delta - (seesaw.rho - seesaw.h) ;
+
 seesaw.kind      = seesawKind;
 
 % Distance of the foot from the seesaw center
@@ -108,4 +109,19 @@ gain.footSize                = [ -0.07 0.07  ;   % xMin, xMax
                                  -0.03 0.03 ];   % yMin, yMax    
 
 fZmin                        = 20;
+
+% Assumption: at time t=0, the seesaw is horizontal and the left foot of
+% the robot is at a given distance from the contact point of the seesaw
+% with the ground ( = world frame origin).
+
+% Rotation between the world and the left foot (= seesaw orientation) at
+% time 0 assuming the left foot rigidly attached to the seesaw
+w_R_leftFoot0 = eye(3);
+
+% P_l0 = initial position of left foot w.r.t. world frame
+P_l0 = [0; seesaw.lFootDistanceCenter; (seesaw.h + seesaw.top)];
+
+% transformation matrix
+w_H_Lfoot0 = [w_R_leftFoot0,  P_l0;
+              zeros(1,3),     1];
 

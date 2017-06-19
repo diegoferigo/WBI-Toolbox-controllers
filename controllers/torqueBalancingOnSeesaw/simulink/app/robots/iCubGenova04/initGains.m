@@ -36,7 +36,7 @@ if CONFIG.SEESAW_HAS_IMU == 1
     seesaw.mass = 6.555;
 end
 
-seesaw.top                      =  0.002; % seesaw.delta - (seesaw.rho - seesaw.h) ;
+seesaw.top                      =  0.02; % seesaw.delta - (seesaw.rho - seesaw.h) ;
 seesaw.kind                     =  seesawKind;
 seesaw.lFootDistanceCenter      =  0.1025;
 seesaw.rFootDistanceCenter      = -0.1025;
