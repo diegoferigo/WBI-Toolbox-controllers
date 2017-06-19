@@ -1,5 +1,4 @@
 ROBOT_DOF      = 23;
-PORTS.IMU      = '/icub/inertial';
 WBT_wbiList    = 'ROBOT_TORQUE_CONTROL_JOINTS_WITHOUT_PRONOSUP';
 sat.torque     = 15;
 

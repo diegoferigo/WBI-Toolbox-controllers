@@ -1,8 +1,29 @@
 function [comError,fNoQp,f_HDot,NA,tauModel,Sigmaf_HDot,SigmaNA,...
           HessianMatrixQP2Feet,gradientQP2Feet,ConstraintsMatrixQP2Feet,bVectorConstraintsQp2Feet, psat,yCoM_des] = ...
-          balancingControlSeeSaw(t, x,ConstraintsMatrix,bVectorConstraints,J_CoM,H,intHw,controlParams,...
+          balancingControlSeesaw(t, x,ConstraintsMatrix,bVectorConstraints,J_CoM,H,intHw,controlParams,...
                                  model, robot,reg,CONFIG,gain,ROBOT_DOF)
     
+                             
+    robot                              = struct;
+
+    robot.M                            = M;
+    robot.J                            = J;
+    robot.JdotNu                       = Jdot_nu;
+    robot.genBiasForces                = genBiasForces;
+    robot.fwdkin.w_p_com               = w_p_com;
+    robot.fwdkin.w_H_l_sole            = w_H_lSole;
+    robot.fwdkin.w_H_r_sole            = w_H_rSole;
+
+    robot.lFootDistanceCenter          = seesaw.lFootDistanceCenter;
+    robot.rFootDistanceCenter          = seesaw.rFootDistanceCenter;
+
+    controlParams.gain                 = gain;
+    controlParams.references.qDes      = qjRef;
+    controlParams.references.xcomDes   = xCoMRef(:,1);
+    controlParams.references.DxcomDes  = xCoMRef(:,2);
+    controlParams.references.DDxcomDes = xCoMRef(:,3);
+
+    model = struct('robot', robot, 'seesaw', seesaw);
     % BALANCINGCONTROL Summary of this function goes here
     %   Detailed explanation goes here
 

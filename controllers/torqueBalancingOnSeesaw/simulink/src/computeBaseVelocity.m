@@ -1,20 +1,24 @@
-function w_v_base  = computeBaseVelocity(J_lSole, w_R_seesaw,dq_j, w_omega_seesaw, model)
+function w_v_base  = computeBaseVelocity(J_lSole, w_R_seesaw, dq_j, s_omega_seesaw, model)
 
-    w_omega_s      = w_R_seesaw*w_omega_seesaw;
+    % conversion to the velocity of the seesaw expressed in world frame
+    w_omega_s      = w_R_seesaw * s_omega_seesaw;
 
+    % should be the distance between the seesaw CoM and the contact point
+    % of the seesaw with the ground
     e3             = [0;0;1];
-    
     w_r            = model.seesaw.delta * w_R_seesaw * e3 - model.seesaw.rho * e3 ; 
 
-    s_s_l          = [ 0; 
-                       model.seesaw.lFootDistanceCenter; 
-                       model.seesaw.top];
+    % s_p_lSole = positionOfLeftFoot - seesawCoM  w.r.t. seesaw frame
+    s_p_lSole      = [model.seesaw.lFootDistance_x;  model.seesaw.lFootDistance_y; model.seesaw.top];
 
-    w_s_l          = w_R_seesaw * s_s_l;
+    % positionOfLeftFoot - seesawCoM  w.r.t. world frame
+    w_p_lSole      = w_R_seesaw * s_p_lSole;
 
-    w_v_l_sole     = [Sf(w_r - w_s_l)*w_omega_s; 
-                                      w_omega_s  ];
-
-    w_v_base       = J_lSole(1:6,1:6)\(w_v_l_sole - J_lSole(1:6,7:end)*dq_j);
+    % linear and angular velocity of lSole in the world coordinates
+    w_v_lSole     = [Sf(w_r - w_p_lSole)*w_omega_s; 
+                                         w_omega_s];
+                                     
+    % finally, base velocity in world coodinates
+    w_v_base      = J_lSole(1:6,1:6)\(w_v_lSole - J_lSole(1:6,7:end)*dq_j);
     
 end

@@ -1,22 +1,32 @@
-ROBOT_DOF      = 23;
-WBT_wbiList    = 'ROBOT_TORQUE_CONTROL_JOINTS_WITHOUT_PRONOSUP';
-sat.torque     = 15;
+ROBOT_DOF        = 23;
+CONFIG.ON_GAZEBO = true;
+PORTS.IMU        = '/icubSim/inertial';
+% fake IMU seesaw port 
+PORTS.IMUSEESAW  = PORTS.IMU;
+PORTS.NECK       = '/icubSim/head/state:o';
+WBT_wbiList      = 'ROBOT_TORQUE_CONTROL_JOINTS_WITHOUT_PRONOSUP';
+sat.torque       = 34;
 
 ROBOT_DOF_FOR_SIMULINK = eye(ROBOT_DOF);
 model.robot.dofs       = ROBOT_DOF;
 
 addpath(genpath('../matlab'));
 
+% adjust seesaw configuration
+CONFIG.SEESAW_WITH_VERTICAL_BORDER   = 0;
+CONFIG.SEESAW_HAS_IMU                = 0;
+CONFIG.USE_SEESAW_ANGVEL             = false;
+CONFIG.USE_IMU_ROBOT_4_SEESAW_ORIENT = false;
+
 %% Seesaw parameters
 seesaw           = struct;
 
 % Height of the seesaw
-%  ___________
-% |           |  ---> vertical border
-%  *         *   | 
-%   *      *     | h
-%     *  *       |
-seesaw.h          = 0.11;
+%  ____________
+%   *        *   | h
+%     *    *     |
+%       **       |
+seesaw.h          = 0.1;
 seesaw.metalPlate = 0.004;
 
 % Add vertical borders
@@ -54,10 +64,10 @@ seesaw.top       = (seesaw.h + seesaw.metalPlate) - seesaw.CoM_z;
 seesaw.kind      =  seesawKind;
 
 % Distance of the feet from the center of the seesaw
-seesaw.lFootDistance_y      =  0.11;
-seesaw.rFootDistance_y      = -0.11;
-seesaw.lFootDistance_x      = -0.01;
-seesaw.rFootDistance_x      = -0.01;
+seesaw.lFootDistance_y      =  0.1;
+seesaw.rFootDistance_y      = -0.1;
+seesaw.lFootDistance_x      =  0.0;
+seesaw.rFootDistance_x      =  0.0;
 
 % INERTIA TENSOR:
 % Ixx Ixy Ixz 7.6698599e-02 0.0000000e+00 0.0000000e+00
@@ -95,7 +105,7 @@ model.seesaw = seesaw;
 
 %% References
 directionOfOscillation   = [0; 1; 0];
-referenceParams          = [0.0 0.25];   %referenceParams(1) = amplitude of ascillations in meters referenceParams(2) = frequency of ascillations in hertz
+referenceParams          = [0.0 0.1];   %referenceParams(1) = amplitude of ascillations in meters referenceParams(2) = frequency of ascillations in hertz
 
 noOscillationTime        = 0;  % If DEMO_LEFT_AND_RIGHT = true, the variable noOscillationTime is the time, in seconds, 
                                % that the robot waits before starting the left-and-right
@@ -123,12 +133,12 @@ gain.seesawKLambda     = 0.5;
 %% REGOLARIZATION TERMS
 reg                    = struct;
 reg.pinvTol            = 1e-7;
-reg.pinvDamp           = 1e-1;
-reg.pinvDampA          = 1e-4;
+reg.pinvDamp           = 1e-2;
+reg.pinvDampA          = 1e-7;
 reg.HessianQP          = 1e-5;
-reg.pinvDampVb         = 1e-3;
 reg.impedances         = 0.1;
 reg.dampings           = 0;
+reg.pinvDampVb         = 1e-2;
 
 %% OTHER BALANCING CONTROLLERS (DIFFERENT FROM 1)
 if  CONFIG.CONTROLKIND == 2   

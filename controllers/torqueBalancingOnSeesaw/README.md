@@ -2,12 +2,8 @@
 
 Structure of the repository:
 
-- matlab
 - simulink
 - imuCalib
-
-## matlab ##
-Contains all the `.m` files: utility functions (quaternion, skew-symmetric matrices, etc) and the `main.m` file needed to simulate the system using one of the ODE MATLAB integrator.
 
 ## simulink ##
 Contains the simulink diagram and the initialization file.
