@@ -41,8 +41,8 @@ r_s            = s_R_w * r_w; %r_w in seesaw frame
 omega_s        = s_R_w * omega_w; %omega in seesaw frame
 dr_s           = seesaw.rho * Sf(omega_s) * s_R_w * e3; %derivative of r_s
 
-s_s_l          = [0; model.robot.lFootCentreDistance; model.seesaw.top];
-s_s_r          = [0; model.robot.rFootCentreDistance; model.seesaw.top];
+s_s_l          = [robot.lFootDistance_x;robot.lFootDistance_y; model.seesaw.top];
+s_s_r          = [robot.lFootDistance_x;robot.rFootDistance_y; model.seesaw.top];
 
 w_s_l          = w_R_s * s_s_l;
 w_s_r          = w_R_s * s_s_r;

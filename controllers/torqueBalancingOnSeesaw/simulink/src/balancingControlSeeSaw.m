@@ -1,29 +1,8 @@
 function [comError,fNoQp,f_HDot,NA,tauModel,Sigmaf_HDot,SigmaNA,...
           HessianMatrixQP2Feet,gradientQP2Feet,ConstraintsMatrixQP2Feet,bVectorConstraintsQp2Feet, psat,yCoM_des] = ...
-          balancingControlSeesaw(t, x,ConstraintsMatrix,bVectorConstraints,J_CoM,H,intHw,controlParams,...
+          balancingControlSeeSaw(t, x,ConstraintsMatrix,bVectorConstraints,J_CoM,H,intHw,controlParams,...
                                  model, robot,reg,CONFIG,gain,ROBOT_DOF)
     
-                             
-    robot                              = struct;
-
-    robot.M                            = M;
-    robot.J                            = J;
-    robot.JdotNu                       = Jdot_nu;
-    robot.genBiasForces                = genBiasForces;
-    robot.fwdkin.w_p_com               = w_p_com;
-    robot.fwdkin.w_H_l_sole            = w_H_lSole;
-    robot.fwdkin.w_H_r_sole            = w_H_rSole;
-
-    robot.lFootDistanceCenter          = seesaw.lFootDistanceCenter;
-    robot.rFootDistanceCenter          = seesaw.rFootDistanceCenter;
-
-    controlParams.gain                 = gain;
-    controlParams.references.qDes      = qjRef;
-    controlParams.references.xcomDes   = xCoMRef(:,1);
-    controlParams.references.DxcomDes  = xCoMRef(:,2);
-    controlParams.references.DDxcomDes = xCoMRef(:,3);
-
-    model = struct('robot', robot, 'seesaw', seesaw);
     % BALANCINGCONTROL Summary of this function goes here
     %   Detailed explanation goes here
 
@@ -91,8 +70,8 @@ function [comError,fNoQp,f_HDot,NA,tauModel,Sigmaf_HDot,SigmaNA,...
     % omega_s        = s_R_w * omega_w;   % omega in seesaw frame
     dr_s           = seesaw.rho * Sf(s_omega_s) * s_R_w * e3; %derivative of r_s
 
-    s_s_l          = [0; model.robot.lFootDistanceCenter; model.seesaw.top];
-    s_s_r          = [0; model.robot.rFootDistanceCenter; model.seesaw.top];
+s_s_l          = [robot.lFootDistance_x;robot.lFootDistance_y; model.seesaw.top];
+s_s_r          = [robot.lFootDistance_x;robot.rFootDistance_y; model.seesaw.top];
 
     w_s_l          = w_R_s * s_s_l;
     w_s_r          = w_R_s * s_s_r;
@@ -313,7 +292,7 @@ function [comError,fNoQp,f_HDot,NA,tauModel,Sigmaf_HDot,SigmaNA,...
     
     %% Other parameters
     F                  = J / M * J' + ...
-                         CONFIG.CONSIDERSEESAWDYN*blkdiag(w_R_s,w_R_s,w_R_s,w_R_s)*Delta*Omega_2* blkdiag(s_R_w,s_R_w)* As;
+                         CONFIG.CONSIDER_SEESAW_DYN*blkdiag(w_R_s,w_R_s,w_R_s,w_R_s)*Delta*Omega_2* blkdiag(s_R_w,s_R_w)* As;
     
     JcMinv             = J/M;
     JcMinvSt           = JcMinv*St;
@@ -337,7 +316,7 @@ function [comError,fNoQp,f_HDot,NA,tauModel,Sigmaf_HDot,SigmaNA,...
     JjBar              = J(:,7:end)'-M(7:robotDoFs+6,1:6)/M(1:6,1:6)* J(:,1:6)';
 
     tauModel           = LambdaPinv * (J / M * genBiasForces - JdotNu ...
-                         + CONFIG.CONSIDERSEESAWDYN*blkdiag(w_R_s, w_R_s, w_R_s, w_R_s) *(Delta * Omega_1 + DeltaDot * s_omega_s + ....
+                         + CONFIG.CONSIDER_SEESAW_DYN*blkdiag(w_R_s, w_R_s, w_R_s, w_R_s) *(Delta * Omega_1 + DeltaDot * s_omega_s + ....
                          blkdiag(Sf(s_omega_s),Sf(s_omega_s),Sf(s_omega_s),Sf(s_omega_s)) * Delta * s_omega_s)) + NullLambda*hjBar;
 
     Sigma              = -LambdaPinv *F - NullLambda*JjBar;

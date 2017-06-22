@@ -5,8 +5,6 @@ sat.torque     = 15;
 ROBOT_DOF_FOR_SIMULINK = eye(ROBOT_DOF);
 model.robot.dofs       = ROBOT_DOF;
 
-addpath(genpath('../matlab'));
-
 %% Seesaw parameters
 seesaw           = struct;
 
@@ -89,7 +87,7 @@ seesaw.offset            = [0; 0; 0];
 w_R_lSole_0  = eye(3);
 
 % Complete transformation
-w_H_lSole_0  = computeTransFromLsole2World(w_R_lSole_0, seesaw);
+CONFIG.w_H_lSole_0  = computeTransFromLsole2World(w_R_lSole_0, seesaw);
 
 model.seesaw = seesaw;
 

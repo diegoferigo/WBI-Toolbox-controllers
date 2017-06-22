@@ -10,8 +10,6 @@ sat.torque       = 34;
 ROBOT_DOF_FOR_SIMULINK = eye(ROBOT_DOF);
 model.robot.dofs       = ROBOT_DOF;
 
-addpath(genpath('../matlab'));
-
 % adjust seesaw configuration
 CONFIG.SEESAW_WITH_VERTICAL_BORDER   = 0;
 CONFIG.SEESAW_HAS_IMU                = 0;
@@ -69,6 +67,9 @@ seesaw.rFootDistance_y      = -0.1;
 seesaw.lFootDistance_x      =  0.0;
 seesaw.rFootDistance_x      =  0.0;
 
+seesaw.s_sl          = [seesaw.lFootDistance_x;seesaw.lFootDistance_y; seesaw.top];
+seesaw.s_sr          = [seesaw.rFootDistance_x;seesaw.rFootDistance_y; seesaw.top];
+
 % INERTIA TENSOR:
 % Ixx Ixy Ixz 7.6698599e-02 0.0000000e+00 0.0000000e+00
 % Iyx Iyy Iyz 0.0000000e+00 3.7876787e-02 0.0000000e+00
@@ -99,7 +100,7 @@ seesaw.offset            = [0; 0; 0];
 w_R_lSole_0  = eye(3);
 
 % Complete transformation
-w_H_lSole_0  = computeTransFromLsole2World(w_R_lSole_0, seesaw);
+CONFIG.w_H_lSole_0  = computeTransFromLsole2World(w_R_lSole_0, seesaw);
 
 model.seesaw = seesaw;
 
@@ -111,14 +112,14 @@ noOscillationTime        = 0;  % If DEMO_LEFT_AND_RIGHT = true, the variable noO
                                % that the robot waits before starting the left-and-right
 
 %% Gains and references
-gain.posturalProp      = diag([ 10 10 20,   10 10 10 8,   10 10 10 8,   30 30 20 20 0 0,   30 50 30 60 0 0 ]);                        
-gain.posturalDamp      = gain.posturalProp*0;
+gain.posturalProp      = diag([ 10 10 20,   10 10 10 8,   10 10 10 8,   30 30 20 20 0 0,   30 50 30 60 0 0 ])/10;                        
+gain.posturalDamp      = 2*sqrt(gain.posturalProp);
 
 gain.PAngularMomentum  = 0;
 gain.DAngularMomentum  = 1;
 
 gain.PCOM              = diag([ 10 50 20 ]);
-gain.DCOM              = 2*sqrt(gain.PCOM)/10;
+gain.DCOM              = 2*sqrt(gain.PCOM);
 gain.ICOM              = diag([ 0 0 0 ]);
 
 gain.P_SATURATION      = 0.30;
@@ -132,13 +133,15 @@ gain.seesawKLambda     = 0.5;
  
 %% REGOLARIZATION TERMS
 reg                    = struct;
-reg.pinvTol            = 1e-7;
-reg.pinvDamp           = 1e-2;
-reg.pinvDampA          = 1e-7;
-reg.HessianQP          = 1e-5;
+reg.pinvTol            = 1e-4;
+reg.pinvDamp           = 1;
+reg.pinvDampA          = 1e-4;
+reg.HessianQP          = 1e-4;
 reg.impedances         = 0.1;
 reg.dampings           = 0;
-reg.pinvDampVb         = 1e-2;
+reg.pinvDampVb         = 1e-7;
+
+model.reg.pinvDampVb =  1e-7;
 
 %% OTHER BALANCING CONTROLLERS (DIFFERENT FROM 1)
 if  CONFIG.CONTROLKIND == 2   

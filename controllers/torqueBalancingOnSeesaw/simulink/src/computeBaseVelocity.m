@@ -19,6 +19,7 @@ function w_v_base  = computeBaseVelocity(J_lSole, w_R_seesaw, dq_j, s_omega_sees
                                          w_omega_s];
                                      
     % finally, base velocity in world coodinates
-    w_v_base      = J_lSole(1:6,1:6)\(w_v_lSole - J_lSole(1:6,7:end)*dq_j);
+    invJb         = pinv(J_lSole(1:6,1:6), model.reg.pinvDampVb);
+    w_v_base      = invJb*(w_v_lSole - J_lSole(1:6,7:end)*dq_j);
     
 end

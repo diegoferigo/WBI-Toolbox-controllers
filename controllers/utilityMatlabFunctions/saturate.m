@@ -9,7 +9,7 @@ if length(min) == 1
 else 
     assert(length(min) == length(u), 'input and saturation must have same size');
  
-    %i don't know how to do this one line..
+    % I don't know how to do this one line...
     y = u;
     for i = 1:length(min)
         if y(i) > max(i)
@@ -17,6 +17,5 @@ else
         elseif y(i) < min(i)
             y(i) = min(i);
         end
-    end
-   
+    end  
 end

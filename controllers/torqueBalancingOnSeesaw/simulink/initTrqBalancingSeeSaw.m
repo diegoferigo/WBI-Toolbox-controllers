@@ -17,6 +17,7 @@ LEFT_RIGHT_FOOT_IN_CONTACT = [1;1];
 
 %% Balancing controller configuration parameters
 CONFIG.CONTROLKIND         = 1; % either 1,2,3,4,5
+CONFIG.CONTROL_KIND        = 1; % either 1,2,3,4,5
 CONFIG.USE_PASSIVE_CONTROL = 0; 
 CONFIG.CONSIDER_SEESAW_DYN = 1;
 
@@ -25,9 +26,11 @@ CONFIG.CONSIDER_SEESAW_DYN = 1;
 % Robot IMU related
 CONFIG.CORRECT_NECK_IMU              = true;
 CONFIG.USE_IMU4EST_BASE              = true;
-CONFIG.USE_IMU_ROBOT_4_SEESAW_ORIENT = true;
-CONFIG.YAW_IMU_FILTER                = true;
-CONFIG.PITCH_IMU_FILTER              = true;
+CONFIG.USE_IMU_ROBOT_4_SEESAW_ORIENT = false;
+
+% NOT WORKING!!
+CONFIG.YAW_IMU_FILTER                = false;
+CONFIG.PITCH_IMU_FILTER              = false;
 
 % Seesaw IMU related
 CONFIG.FILTER_SEESAW_ANGVEL          = false;
@@ -40,6 +43,7 @@ CONFIG.USE_SEESAW_ANGVEL             = true;
 %% CHANGED WHEN SIMULATING THE ROBOT ON GAZEBO, i.e. YARP_ROBOT_NAME=icubGazeboSim
 addpath('../../utilityMatlabFunctions/')
 addpath('./src')
+addpath('../matlab');
 
 WBT_modelName        = 'matlabTorqueBalancingSeesaw';
 
