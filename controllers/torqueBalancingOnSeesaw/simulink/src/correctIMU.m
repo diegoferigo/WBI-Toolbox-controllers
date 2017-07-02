@@ -1,4 +1,4 @@
-function imu_H_imuAssumingNeckToZero = correctIMU( neckJoints )
+function imu_H_imuAssumingNeckToZero = correctIMU(neckJoints)
 % correctIMU Corrects the IMU transform computed assuming the neck joints
 % equal to 0, return the imu_H_imuAssumingNeckToZero transform. 
 % neckJoints is the vector of joints ( neck_pitch , neck_roll,

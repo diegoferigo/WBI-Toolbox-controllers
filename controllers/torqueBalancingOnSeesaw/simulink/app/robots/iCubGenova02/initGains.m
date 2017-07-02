@@ -1,233 +1,125 @@
-ROBOT_DOF      = 23;
-WBT_wbiList    = 'ROBOT_TORQUE_CONTROL_JOINTS_WITHOUT_PRONOSUP';
-sat.torque     = 15;
-
+ROBOT_DOF              = 23;
+WBT_wbiList            = '(torso_pitch,torso_roll,torso_yaw,l_shoulder_pitch,l_shoulder_roll,l_shoulder_yaw,l_elbow,r_shoulder_pitch,r_shoulder_roll,r_shoulder_yaw,r_elbow,l_hip_pitch,l_hip_roll,l_hip_yaw,l_knee,l_ankle_pitch,l_ankle_roll,r_hip_pitch,r_hip_roll,r_hip_yaw,r_knee,r_ankle_pitch,r_ankle_roll)';
+sat.torque             = 12;
 ROBOT_DOF_FOR_SIMULINK = eye(ROBOT_DOF);
-model.robot.dofs       = ROBOT_DOF;
 
 %% Seesaw parameters
-seesaw           = struct;
+seesaw                 = struct;
 
 % Height of the seesaw
 %  ___________
 % |           |  ---> vertical border
 %  *         *   | 
-%   *      *     | h
+%   *      *     | hArc
 %     *  *       |
-seesaw.h          = 0.11;
-seesaw.metalPlate = 0.004;
-
-% Add vertical borders
-if CONFIG.SEESAW_WITH_VERTICAL_BORDER == 1
-    seesaw.h     = seesaw.h + 0.046;
-end
+seesaw.hArc            = 0.11;
+seesaw.metalPlate      = 0.004;
+seesaw.verticalBorder  = 0.046;
+seesaw.h               = seesaw.hArc + seesaw.verticalBorder;
 
 % Radius of the seesaw
-seesaw.rho       = 0.362;
-seesaw.CoM_z     = seesaw.h + seesaw.metalPlate*0.5;
+seesaw.rho             = 0.362;
 
-% Seesaw inertia and mass (no IMU)
-seesaw.inertia   = diag([7.6698599e-02, 3.7876787e-02, 1.0893139e-01]);
-seesaw.mass      = 4.2;
+% Height of seesaw CoM
+shiftCoM               = 0.02;
+seesaw.CoM_z           = seesaw.h - shiftCoM;
 
-% WITH IMU ON SEESAW
-if CONFIG.SEESAW_HAS_IMU == 1
-    % with the IMU, the CoM of the seesaw is about 2 centimeters below the
-    % metal plate
-    shiftCoM       = 0.02;
-    seesaw.CoM_z   = seesaw.h - shiftCoM;
-    seesaw.inertia = diag([7.6698599e-02, 3.7876787e-02, 1.0893139e-01]);
-    seesaw.mass    = 6.2;
-end
-
-% Distance between the center of rotation and the center of mass. If the
-% seesaw has no imu, the center of mass is assumed to be on the surface of
-% the seesaw. Otherwise, the CoM is a bit lower
-seesaw.delta     = seesaw.rho - seesaw.CoM_z;
-
-% Distance between the seesaw/feet contact plane and the seesaw CoM
-seesaw.top       = (seesaw.h + seesaw.metalPlate) - seesaw.CoM_z;
-
-% Shape of the seesaw
-seesaw.kind      =  seesawKind;
-
-% Distance of the feet from the center of the seesaw
-seesaw.lFootDistance_y      =  0.11;
-seesaw.rFootDistance_y      = -0.11;
-seesaw.lFootDistance_x      = -0.01;
-seesaw.rFootDistance_x      = -0.01;
+% Seesaw inertia and mass (IMU is considered in the mass but not for the inertia)
+seesaw.mass            = 6.2;
 
 % INERTIA TENSOR:
 % Ixx Ixy Ixz 7.6698599e-02 0.0000000e+00 0.0000000e+00
 % Iyx Iyy Iyz 0.0000000e+00 3.7876787e-02 0.0000000e+00
 % Izx Izy Izz 0.0000000e+00 0.0000000e+00 1.0893139e-01
-seesaw.invInertia = eye(3)/seesaw.inertia;
+seesaw.inertia         = diag([7.6698599e-02, 3.7876787e-02, 1.0893139e-01]);
 
-switch seesaw.kind
+% Distance between the center of rotation and the center of mass
+seesaw.delta           = seesaw.rho - seesaw.CoM_z;
+
+% Distance (vertical) between the seesaw/feet contact plane and the seesaw CoM
+seesaw.top             = (seesaw.h + seesaw.metalPlate) - seesaw.CoM_z;
+
+% Distance (XY) of the feet from the center of the seesaw (or seesaw xy CoM)
+seesaw.lFootDistance_y =  0.11;
+seesaw.rFootDistance_y = -0.11;
+seesaw.lFootDistance_x = -0.01;
+seesaw.rFootDistance_x = -0.01;
+
+% Distance between the seesaw CoM and the feet
+seesaw.s_sl            = [seesaw.lFootDistance_x;seesaw.lFootDistance_y; seesaw.top];
+seesaw.s_sr            = [seesaw.rFootDistance_x;seesaw.rFootDistance_y; seesaw.top];
+
+if strcmp(FRAMES.fixedLink,'l_sole')
     
-    case 1 % Spherical seesaw
-        seesaw.iota      = seesaw.mass*seesaw.invInertia;
-        seesaw.invIota   = inv(seesaw.iota);
-        
-    case 2 % Semi cylidrical seesaw
-        seesaw.iota      = [1;0;0]*transpose([1;0;0])*seesaw.mass*seesaw.invInertia;
-        seesaw.invIota   = 0;
+    % Link fixed with the seesaw
+    seesaw.s_sFixed    = seesaw.s_sl;
+    
+elseif strcmp(FRAMES.fixedLink,'r_sole')
+    
+    seesaw.s_sFixed    = seesaw.s_sr;
+    
+else
+    
+    error('The robot frame which is assumed to be fixed w.r.t. the seesaw is not valid!')    
 end
 
-% adjust seesaw angle measurements (roll, pitch, yaw) [deg]
-seesaw.offset            = [0; 0; 0];
+% Adjust seesaw angle measurements (roll, pitch, yaw) [deg]
+seesaw.offset          = [0; 0; 0];
 
-%% World frame location
-% Assumption: at time t=0, the seesaw is horizontal, and the left foot of
-% the robot is at a given distance from the contact point of the seesaw
-% with the ground ( = world frame origin).
+% Relative rotation between world frame and IMU seesaw world frame
+addpath('../../../../../utilityMatlabFunctions/');
+seesaw.w_R_wImu = rotx(pi)*rotz(-44/180*pi); 
 
-% Rotation between the world and the left foot (= seesaw orientation) at
-% time 0 assuming the left foot rigidly attached to the seesaw
-w_R_lSole_0  = eye(3);
+%% Filter seesaw measurements
 
-% Complete transformation
-CONFIG.w_H_lSole_0  = computeTransFromLsole2World(w_R_lSole_0, seesaw);
+% Both velocity and orientation filters compute the average of a
+% given number of samples coming from the IMU seesaw measurements. The
+% number of samples is the order of the filter.
 
-model.seesaw = seesaw;
+% Select the order of the filter for seesaw orientation and ang velocity
+seesaw.positionFilterOrder = 5;
+seesaw.velocityFilterOrder = 5;
 
-%% References
-directionOfOscillation   = [0; 1; 0];
-referenceParams          = [0.0 0.25];   %referenceParams(1) = amplitude of ascillations in meters referenceParams(2) = frequency of ascillations in hertz
+%% References for CoM trajectory
+directionOfOscillation     = [0; 1; 0];
+referenceParams            = [0.0 0.25]; % referenceParams(1) = amplitude of ascillations in meters; referenceParams(2) = frequency of ascillations in Hertz
+noOscillationTime          = 0; % the variable noOscillationTime is the time, in seconds, that the robot waits before starting moving the CoM left-and-right
 
-noOscillationTime        = 0;  % If DEMO_LEFT_AND_RIGHT = true, the variable noOscillationTime is the time, in seconds, 
-                               % that the robot waits before starting the left-and-right
+%% Gains regularization terms
 
-%% Gains and references
-gain.posturalProp      = diag([ 10 10 20,   10 10 10 8,   10 10 10 8,   30 30 20 20 0 0,   30 50 30 60 0 0 ]);                        
-gain.posturalDamp      = gain.posturalProp*0;
+% By default these values are used by CONTROL_KIND 1
+gain.posturalProp      = diag([10 10 20,   10 10 10 8,   10 10 10 8,   60 60 60 60 10 10,   60 60 60 60 10 10]);                        
+gain.posturalDamp      = 2*sqrt(gain.posturalProp)*0;
 
-gain.PAngularMomentum  = 0;
-gain.DAngularMomentum  = 1;
+gain.PAngularMomentum  = 1;
+gain.DAngularMomentum  = 2*sqrt(gain.PAngularMomentum);
 
-gain.PCOM              = diag([ 10 50 20 ]);
-gain.DCOM              = 2*sqrt(gain.PCOM)/10;
-gain.ICOM              = diag([ 0 0 0 ]);
+gain.PCOM              = diag([ 25 50 25 ]);
+gain.DCOM              = 2*sqrt(gain.PCOM)/20;
 
+% Saturate the CoM position error
 gain.P_SATURATION      = 0.30;
-
-gain.seesawKP          = 0.1;
-gain.seesawKD          = 2*sqrt(gain.seesawKP);
-
-gain.seesawKP_passive  = 0.1;
-gain.seesawKD_passive  = 2*sqrt(gain.seesawKP);
-gain.seesawKLambda     = 0.5;
  
-%% REGOLARIZATION TERMS
+% Regularization terms
 reg                    = struct;
-reg.pinvTol            = 1e-7;
-reg.pinvDamp           = 1e-1;
-reg.pinvDampA          = 1e-4;
-reg.HessianQP          = 1e-5;
-reg.pinvDampVb         = 1e-3;
+reg.pinvDamp           = 1;
 reg.impedances         = 0.1;
 reg.dampings           = 0;
-
-%% OTHER BALANCING CONTROLLERS (DIFFERENT FROM 1)
-if  CONFIG.CONTROLKIND == 2   
-    
-    gain.posturalProp      = diag([ 10 10 20,   10 10 10 8,   10 10 10 8,   30 30 20 20 0 0,   30 50 30 60 0 0 ]);                   
-    gain.posturalDamp      = gain.posturalProp*0;
-
-    gain.PAngularMomentum  = 0;
-    gain.DAngularMomentum  = 1;
-
-    gain.PCOM              = diag([ 10 50 20 ])/10;
-    gain.DCOM              = 2*sqrt(gain.PCOM)/40;
-    gain.ICOM              = diag([ 0 0 0 ]);
-
-    gain.P_SATURATION      = 0.30;
-
-    gain.seesawKP          = 0.1/10;
-    gain.seesawKD          = 2*sqrt(gain.seesawKP)/10;
-    
-elseif  CONFIG.CONTROLKIND == 3
-    
-    gain.posturalProp      = diag([ 10 10 20,   10 10 10 8,   10 10 10 8,   30 30 20 20 0 0,   30 50 30 60 0 0 ]);                         
-    gain.posturalDamp      = gain.posturalProp*0;
-
-    gain.PAngularMomentum  = 0;
-    gain.DAngularMomentum  = 1;
-
-    gain.PCOM              = diag([ 10 50 20 ])/5;
-    gain.DCOM              = 2*sqrt(gain.PCOM)/20;
-    gain.ICOM              = diag([ 0 0 0 ]);
-
-    gain.P_SATURATION      = 0.30;
-
-    gain.seesawKP          = 0.1;
-    gain.seesawKD          = 2*sqrt(gain.seesawKP);
-    
-elseif  CONFIG.CONTROLKIND == 4   
-    
-    gain.posturalProp      = diag([ 10 10 20,   10 10 10 8,   10 10 10 8,   30 30 20 20 0 0,   30 50 30 60 0 0 ]);                       
-    gain.posturalDamp      = gain.posturalProp*0;
-
-    gain.PAngularMomentum  = 10;
-    gain.DAngularMomentum  = 2*sqrt(gain.PAngularMomentum);
-
-    gain.PCOM              = diag([ 20 50 20 ])/2;
-    gain.DCOM              = 2*sqrt(gain.PCOM)/10;
-    gain.ICOM              = diag([ 0 0 0 ]);
-
-    gain.P_SATURATION      = 0.30;
-
-    gain.seesawKP          = 10;
-    gain.seesawKD          = 20; 
-    
-    gain.seesawKP_passive  = 10;
-    gain.seesawKD_passive  = 2*sqrt(gain.seesawKP)*2;
-    gain.seesawKLambda     = 0.5;
-    
-    reg.pinvTol            = 1e-4;
-    reg.pinvDamp           = 1e-2;
-    reg.pinvDampA          = 1e-7;
-    reg.pinvDampA          = 1e-4;
-    reg.HessianQP          = 1e-5;
-    reg.pinvDampVb         = 1e-2;
-
-  elseif  CONFIG.CONTROLKIND == 5   
-    
-    gain.posturalProp      = diag([ 10 10 20,   10 10 10 8,   10 10 10 8,   30 30 20 20 0 0,   30 50 30 60 0 0 ]);                        
-    gain.posturalDamp      = gain.posturalProp*0;
-
-    gain.PAngularMomentum  = 1;
-    gain.DAngularMomentum  = 1;
-
-    gain.PCOM              = diag([ 10 50 20 ]);
-    gain.DCOM              = 2*sqrt(gain.PCOM)/20;
-    gain.ICOM              = diag([ 0 0 0 ]);
-
-    gain.P_SATURATION      = 0.30;
-
-    gain.seesawKP          = 0.1;
-    gain.seesawKD          = 2*sqrt(gain.seesawKP);
-    
-    gain.seesawKP_passive  = 0.1;
-    gain.seesawKD_passive  = 2*sqrt(gain.seesawKP);
-    
-    reg.pinvTol            = 1e-3;
-    reg.pinvDamp           = 1e-2;
-    reg.pinvDampA          = 1e-7;
-    reg.pinvDampA          = 1e-4;
-    reg.HessianQP          = 1e-5;
-    
-end
+reg.HessianQP          = 1e-7;
+reg.pinvTol            = 1e-3;
+reg.pinvTolVb          = 1e-7;
 
 %% Friction cone parameters
-numberOfPoints                = 4; % The friction cone is approximated by using linear interpolation of the circle. 
-                                   % So, numberOfPoints defines the number of points used to interpolate the circle in each cicle's quadrant 
+numberOfPoints         = 4; % The friction cone is approximated by using linear interpolation of the circle. 
+                            % So, numberOfPoints defines the number of points used to interpolate the circle in each cicle's quadrant 
 
-forceFrictionCoefficient      = 1; %1/3;  
+% Friction parameters
+forceFrictionCoefficient      = 1;   
 torsionalFrictionCoefficient  = 2/150;
 
-% physical size of foot 
+% Physical size of foot 
 gain.footSize                 = [ -0.07  0.12 ;    % xMin, xMax
                                   -0.045 0.05 ];   % yMin, yMax     
 
+% Minimal normal force
 fZmin                         = 20;

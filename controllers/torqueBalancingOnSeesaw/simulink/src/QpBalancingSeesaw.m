@@ -15,7 +15,7 @@
 %  * Public License for more details
 %  */
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function QpTwoFeet(block)
+function QpBalancingSeesaw(block)
 
 setup(block);
 
@@ -40,9 +40,9 @@ block.InputPort(1).Dimensions        = 23;        % tauModel
 block.InputPort(2).Dimensions        = 23;        % Sigmaf_HDot
 block.InputPort(3).Dimensions        = [23 12];   % SigmaNa 
 block.InputPort(4).Dimensions        = [12 12];   % HessianMatrixQP2Feet               
-block.InputPort(5).Dimensions        = [ 1 12];   % gradientQP2Feet
+block.InputPort(5).Dimensions        = [1  12];   % gradientQP2Feet
 block.InputPort(6).Dimensions        = [38 12];   % ConstraintsMatrixQP2Feet 
-block.InputPort(7).Dimensions        = [ 1 38];   % bVectorConstraintsQp2Feet 
+block.InputPort(7).Dimensions        = [1  38];   % bVectorConstraintsQp2Feet 
 block.InputPort(8).Dimensions        = 1 ;        % USE_QP_SOLVER
 
 % Override output port properties
@@ -62,7 +62,7 @@ for i =1:block.NumOutputPorts
 end
 
 % Register parameters
-block.NumDialogPrms     = 0;
+block.NumDialogPrms = 0;
 
 % Register sample times
 %  [0 offset]            : Continuous sample time
@@ -70,7 +70,7 @@ block.NumDialogPrms     = 0;
 %
 %  [-1, 0]               : Inherited sample time
 %  [-2, 0]               : Variable sample time
-block.SampleTimes       = [-1 0];
+block.SampleTimes = [-1 0];
 
 % Specify the block simStateCompliance. The allowed values are:
 %    'UnknownSimState', < The default setting; warn and assume DefaultSimState
@@ -151,7 +151,7 @@ function SetInputPortSamplingMode(block, idx, fd)
 
 function Outputs(block)
     
-    USE_QPO_SOLVER             = block.InputPort(8).Data;
+    USE_QP_SOLVER             = block.InputPort(8).Data;
 
     tauModel                   = block.InputPort(1).Data;
     Sigmaf_HDot                = block.InputPort(2).Data;
@@ -161,15 +161,16 @@ function Outputs(block)
     gradientQP2Feet            = block.InputPort(5).Data;
     ConstraintsMatrixQP2Feet   = block.InputPort(6).Data;
     bVectorConstraintsQp2Feet  = block.InputPort(7).Data;
-    if USE_QPO_SOLVER 
-        [f02Feet,~,exitFlagQP2Feet,~,~,~] ...
-                               = qpOASES(HessianMatrixQP2Feet,gradientQP2Feet',ConstraintsMatrixQP2Feet,[],[],[],bVectorConstraintsQp2Feet');           
+    
+    if USE_QP_SOLVER 
+        [f02Feet,~,exitFlagQP2Feet,~,~,~] = qpOASES(HessianMatrixQP2Feet,gradientQP2Feet',ConstraintsMatrixQP2Feet,[],[],[],bVectorConstraintsQp2Feet');           
+        
         if exitFlagQP2Feet ~= 0
-            f02Feet            = - inv(HessianMatrixQP2Feet)*gradientQP2Feet';
+            f02Feet = -inv(HessianMatrixQP2Feet)*gradientQP2Feet';
         end
     else
-        exitFlagQP2Feet        = 1;
-        f02Feet = - inv(HessianMatrixQP2Feet)*gradientQP2Feet';
+        exitFlagQP2Feet = 1;
+        f02Feet         = -inv(HessianMatrixQP2Feet)*gradientQP2Feet';
     end
             
     block.OutputPort(1).Data = f02Feet;
@@ -181,8 +182,3 @@ function Outputs(block)
 function Terminate(block)
 
 %end Terminate
-
-
-
-
-
