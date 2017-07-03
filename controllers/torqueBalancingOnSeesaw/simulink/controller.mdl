@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.1059"
+    ComputedModelVersion    "1.1062"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -54,10 +54,10 @@ Model {
 	$ClassName		"Simulink.EditorInfo"
 	IsActive		[1]
 	ViewObjType		"SimulinkSubsys"
-	LoadSaveID		"1265"
+	LoadSaveID		"517"
 	Extents			[1265.0, 597.0]
-	ZoomFactor		[0.57532861476238628]
-	Offset			[58.425170254833176, 87.666080843585235]
+	ZoomFactor		[0.75]
+	Offset			[0.0, -4.6666666666666856]
       }
     }
   }
@@ -67,9 +67,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "gabri"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Jul 02 18:41:50 2017"
-  RTWModifiedTimeStamp	  420921377
-  ModelVersionFormat	  "1.%<AutoIncrement:1059>"
+  LastModifiedDate	  "Sun Jul 02 23:11:00 2017"
+  RTWModifiedTimeStamp	  420935945
+  ModelVersionFormat	  "1.%<AutoIncrement:1062>"
   ConfigurationManager	  "none"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
@@ -1181,7 +1181,7 @@ Model {
       System {
 	Name			"Balancing controller and QP solver"
 	Location		[65, 24, 1366, 768]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -3349,7 +3349,7 @@ Model {
       System {
 	Name			"Dump and visualize"
 	Location		[65, 24, 1366, 768]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -3476,8 +3476,8 @@ Model {
 	    MarkerStyles	    "none|none|none|none|none|none"
 	  }
 	  ShowLegends		  off
-	  YMin			  "-5~-5~-5"
-	  YMax			  "5~5~5"
+	  YMin			  "-0.05~-0.05~-0.035"
+	  YMax			  "0.65~0.65~0.03"
 	  LimitDataPoints	  off
 	}
 	Block {

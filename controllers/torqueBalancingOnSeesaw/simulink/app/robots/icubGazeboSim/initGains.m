@@ -87,7 +87,7 @@ seesaw.velocityFilterOrder = 5;
 
 %% References for CoM trajectory
 directionOfOscillation     = [0; 1; 0];
-referenceParams            = [0.0 0.25]; % referenceParams(1) = amplitude of ascillations in meters; referenceParams(2) = frequency of ascillations in Hertz
+referenceParams            = [0.0,0.25]; % referenceParams(1) = amplitude of ascillations in meters; referenceParams(2) = frequency of ascillations in Hertz
 noOscillationTime          = 0; % the variable noOscillationTime is the time, in seconds, that the robot waits before starting moving the CoM left-and-right
 
 %% Gains and regularization terms (for all different controllers)
