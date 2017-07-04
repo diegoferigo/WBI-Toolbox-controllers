@@ -1,6 +1,6 @@
-function [tauModel,SIGMA_fH,SIGMA_NA,ConstraintsMatrixQP2Feet,bVectorConstraintsQp2Feet,HessianMatrixQP2Feet,gradientQP2Feet,fH,NA,ddxCoM_seesaw] = ...
+function [tauModel,SIGMA_fH,SIGMA_NA,ConstraintsMatrixQP2Feet,bVectorConstraintsQp2Feet,HessianMatrixQP2Feet,gradientQP2Feet,fH,NA,ddxCoM_seesaw,dotHwDes] = ...
           balancingController(w_R_s,s_omega,seesaw,robot,trajectory,gain,qj,nu,ConstraintsMatrix,bVectorConstraints, ...
-                              w_H_lSole,w_H_rSole,w_p_CoM,reg,CONFIG,ROBOT_DOF,xCoM_seesaw,dxCoM_seesaw)
+                              w_H_lSole,w_H_rSole,w_p_CoM,reg,CONFIG,ROBOT_DOF,xCoM_seesaw,dxCoM_seesaw,HwDes)
 
 %% Balancing control of iCub on a seesaw.                          
 %% Recap of the equations needed for balancing on a semispherical seesaw.
@@ -304,7 +304,8 @@ SIGMA = -pinvLAMBDA*F -NLambda*JjBar;
 
 % compatibility with other controllers
 ddxCoM_seesaw = zeros(3,1);
-    
+dotHwDes      = zeros(3,1);
+
 if CONFIG.CONTROL_KIND == 1
     
     % CONTROL 1: fH is the vector of desired feet wrenches. In this
@@ -406,8 +407,10 @@ elseif CONFIG.CONTROL_KIND == 2
     ddxCoM_star = saturated_xCoM + gain.DCOM * (dxCoM_seesaw - w_vCoM);
 
     % robot desired linear and angular momentum
+    dotHwDes           = dotH_seesaw(4:6);
+    
     HDot_star_feedback = [ M(1,1)*ddxCoM_star; 
-                          -gain.DAngularMomentum*H(4:end)-gain.PAngularMomentum*intHw];
+                          -gain.DAngularMomentum*(H(4:end)-HwDes)-gain.PAngularMomentum*intHw];
        
     HDot_star = dotH_seesaw + HDot_star_feedback;       
              
@@ -439,8 +442,3 @@ HessianMatrixQP2Feet      = transpose(SIGMA_NA)*SIGMA_NA + eye(size(SIGMA_NA,2))
 gradientQP2Feet           = transpose(SIGMA_NA)*(tauModel + SIGMA*fH);
 
 end
-
-
-
-
-

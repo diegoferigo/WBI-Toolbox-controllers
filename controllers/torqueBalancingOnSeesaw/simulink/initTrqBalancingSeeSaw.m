@@ -26,9 +26,10 @@ CONFIG.USE_QP_SOLVER       = true;
 %                  robot only;
 %
 % CONTROL_KIND 2 = control objective: seesaw angular momentum in x direction;
-%                  centroidal momentum dynamics of the robot (secondary task)
+%                  obtained by controlling the centroidal momentum dynamics 
+%                  0of the robot;
 %
-CONFIG.CONTROL_KIND        = 1; 
+CONFIG.CONTROL_KIND = 2; 
 
 %% CONFIGURATION PARAMETERS FOR STATE ESTIMATION
 
